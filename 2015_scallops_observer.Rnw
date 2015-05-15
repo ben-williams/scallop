@@ -218,9 +218,9 @@ q <- subset(scallop,District=='Q' )
 
 #look for normality in cpue data
 #h1 <- ggplot(scallop,aes(rwt.cpue))+geom_histogram()
-h2 <- ggplot(scallop,aes(rwa.cpue))+geom_histogram()+xlab('Round weight CPUE')
+h2 <- ggplot(scallop,aes(rwa.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
 #h3 <- ggplot(scallop,aes(mwt.cpue))+geom_histogram()
-h4 <- ggplot(scallop,aes(mwa.cpue))+geom_histogram()+xlab('Meat weight CPUE')
+h4 <- ggplot(scallop,aes(mwa.cpue))+geom_histogram(alpha=.5, color='black')+xlab('Meat weight CPUE')
 grid.arrange(h2,h4,ncol=2)
 @
 
@@ -474,7 +474,7 @@ grid.arrange(as1,as2,ncol=2)
 
 \section{Area K}
 \subsection{Kodiak Northeast District}
-<<kne,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<kne,fig=TRUE, fig.pos="H", fig.cap="Maps of District KNE fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #######################
 #KNE
 #######################
@@ -503,10 +503,11 @@ knemap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fil
 
 knemap+geom_point(data=kne, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wrap(~ Year)+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+
-   theme(legend.key = element_blank(),legend.position = c(0.89, 0.01),legend.background = 
+   theme(legend.key = element_blank(),legend.position = c(0.89, 0.15),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 @
 
+<<knecpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KNE cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #RAW density and number of tows
 m1 <- ggplot(kne, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
@@ -520,7 +521,9 @@ m2 <- ggplot(kne, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+facet_gri
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(m1,m2,ncol=2)
-                                           
+@
+
+<<knefit,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KNE standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #Model the CPUE
                                            
 fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=kne, gamma=1.4)
@@ -538,46 +541,57 @@ f2 <- ggplot(kne, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(f1,f2,ncol=2)
-                                           
-                                           
+@                                           
+
+<<knesh,fig=TRUE, fig.pos="H", fig.cap="Shell heights by bed and year for District KNE.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=                                           
 #Shell heights
 kne.sh <- merge(kne,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
                                            
 #SH by year
-ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+s1 <- ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
    element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
                                            
-ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
+s2 <- ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-                                           
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<knesh14,fig=TRUE, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for District KNE in 2014.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
 #SH by bed
-ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
-ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
-                                           
+s1 <- ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
+s2 <- ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<kneage,fig=TRUE, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KNE.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=                               
  #Ages
                                            
 kne.age <- merge(kne, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
                                            
                                            
 #age by year
-ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~.)+
+a1 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~.)+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
-   theme(legend.key = element_blank(),legend.position = c(0.85, 0.075),legend.background = 
-   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-                                           
-ggplot(kne.age, aes(annuli, fill=Bed))+geom_histogram(alpha=.2)+facet_grid(Year~.)
-                                           
-                                           
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+a2 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(a1,a2,ncol=2)
+@                                           
                                            
 knemap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
       guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
