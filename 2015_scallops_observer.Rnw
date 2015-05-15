@@ -1172,7 +1172,7 @@ as2 <- ggplot(o.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+face
 grid.arrange(as1,as2,ncol=2)
 @
 
-<<<oagex, echo=FALSE, warning=FALSE >>=
+<<oagex, echo=FALSE, warning=FALSE >>=
 #ggplot(o.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
    stat_smooth()+coord_cartesian(xlim=c(0,20))
 #ggplot(o.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
@@ -1331,7 +1331,7 @@ as2 <- ggplot(q.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+face
 grid.arrange(as1,as2,ncol=2)
 @
 
-<<<oagex, echo=FALSE, warning=FALSE,eval=FALSE >>=
+<<oagex, echo=FALSE, warning=FALSE,eval=FALSE >>=
 ggplot(q.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
    geom_density(data=q.sh, aes(Shell_Height), alpha=.2,fill=4)
 
