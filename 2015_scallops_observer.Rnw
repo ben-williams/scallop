@@ -592,11 +592,13 @@ a2 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 grid.arrange(a1,a2,ncol=2)
 @                                           
+
+<<>>=
                                            
 knemap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
       guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
       scale_colour_gradientn(colours = =rainbow(5))
-
+@
 knemap+geom_point(data=subset(kne.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
        guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
       scale_colour_gradientn(colours=rainbow(5))
