@@ -617,7 +617,7 @@ as2 <- ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+fa
 grid.arrange(as1,as2,ncol=2)
 @
 
-<<yakagex,echo=FALSE,message=FALSE,warning=FALSE>>=
+<<kneagex,echo=FALSE,message=FALSE,warning=FALSE>>=
 #Extras
 #knemap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
 #      guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
@@ -655,7 +655,8 @@ grid.arrange(as1,as2,ncol=2)
 
 @
 
-<<ksh,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+\subsection{Kodiak Shelikof District}
+<<ksh,fig=TRUE, fig.pos="H", fig.cap="Maps of District KSH fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #######################
 #KSH
 #######################
@@ -675,7 +676,8 @@ bvalues <- c('1'='#e41a1c','2'='#377eb8','3'='#4daf4a',
             '4'='#984ea3','5'='#ff7f00','6'='#ffff33','7'='#a65628') 
 bbreaks <- c('1', '2','3','4','5','6','7')
 
-ggplot(ksh,aes(Set_Lon, Set_Lat, color=Bed))+geom_point()
+#this plot was used to determine breaks in beds
+#ggplot(ksh,aes(Set_Lon, Set_Lat, color=Bed))+geom_point()
 #remove incomplete data
 ksh <- ksh[complete.cases(ksh),]
 
@@ -694,8 +696,9 @@ kshmap+geom_point(data=ksh, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wra
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
    scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
    scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')
+@
 
-
+<<kshcpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KSH cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #RAW density and number of tows
 m1 <- ggplot(ksh, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
@@ -709,7 +712,9 @@ m2 <- ggplot(ksh, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+facet_gri
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(m1,m2,ncol=2)
+@
 
+<<kshfit,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KSH standardized cpue. Note the different scales for the y-axis.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #Model the CPUE
 
 fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=ksh, gamma=1.4)
@@ -727,7 +732,7 @@ f2 <- ggplot(ksh, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(f1,f2,ncol=2)
-
+@
 
 #Shell heights
 ksh.sh <- merge(ksh,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
