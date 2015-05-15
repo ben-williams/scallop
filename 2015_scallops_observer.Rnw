@@ -1,0 +1,1176 @@
+\documentclass{article}
+\usepackage{color}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
+\usepackage[]{authblk}
+\pretolerance=10000 
+\author{Prepared by:\\Ben Williams\\
+   \href{mailto:ben.williams@alaska.gov}{ben.williams@alaska.gov}}
+\affil{Alaska Department of Fish \& Game\\
+   1255 W 8th Street\\
+   Juneau, AK 99811-5526}
+\title{Scallop Observer Data Summary\\
+   \textbf{\textit{DRAFT}}}
+
+\begin{document}
+   \maketitle
+	\tableofcontents
+\begin{document}
+\section{Background}
+This report summarizes weathervane scallop \textit{Patinopecten caurinus} fishery data for data collected by the onboard observer program during the 2014/15 season. 
+The information is provided by the scallop observer program to aid ADF\&G Southeast Region staff in setting guideline harvest levels (GHLs) for the 2015/16 scallop season scheduled to begin July 1. 
+Although scallop vessel operators sign waivers that allow ADF\&G to publish data collected by the onboard observer program, material included in this report such as individual vessel fishing locations, catches, and catch rates are \textbf{\color{red}{CONFIDENTIAL}} and should not be released to the public.
+
+Amendment 3 to the Fishery Management Plan for the Scallop Fishery off Alaska (FMP) delegated authority to manage all aspects of the federal waters scallop fishery except limited access to the State of Alaska. 
+ADF\&G sets GHLs prior to each season, opens and closes scallop fishing areas and districts, oversees the onboard observer program, monitors scallop fishery catch and bycatch inseason, summarizes scallop management activities in department publications, and participates in the federal management process through the North Pacific Fishery Management Council (NPFMC) and Scallop Plan Team (SPT).
+
+Amendment of the weathervane scallop FMP to incorporate Annual Catch Limits (ACLs) required by the 2006 reauthorization of the Magnuson-Stevens Act redefined the statewide overfishing level (OFL) from 1.24 million lb to 1.29 million lb of shucked scallop meats. 
+The change was made to account for all sources of fishing mortality including harvest, discarded scallop catch in the directed fishery, bycatch in other fisheries, and survey catches. 
+The annual ACL will equal 90\% of OFL, or 1.161 million lb of shucked meats, subject to annual approval by the NPFMC. 
+For the ACL amendment analysis leading to the new OFL definition, mortality of scallops discarded in the fishery was assumed to be 20\%, and meat recovery was set at 10\% of scallop round weight.
+
+The state's vessel-based limited entry program for the state-waters scallop fishery sunsetted on December 31, 2013.
+Subsequently, the Alaska Board of Fisheries (BOF) passed a new state waters scallop fishery management plan (FMP).
+Details on the  BOF action are available at
+
+\url{http://www.adfg.alaska.gov/index.cfm?adfg=fisheriesboard.meetinginfo&date=01-07-2014&meeting=kodiak}.
+
+At present, it appears that no new participants will be entering the 2015/16 state water scallop fishery. 
+We do know that all four vessels with federal-waters licenses will legally be able to fish scallops in state waters beginning July 1, 2015; previously, only one Alaska Scallop Association vessel held a state-waters permit.
+
+Estimates of scallop abundance from fishery-independent surveys are not available. 
+ADF\&G managers rely on data collected by the onboard scallop observer program including logbook data on fishing locations, catch, effort, catch-per-unit-effort (cpue), and bycatch. 
+Inseason cpue and bycatch data from onboard observers may also be used in making scallop management decisions such as time/area closures. 
+Summaries of inseason data (when fishing is open) as well as edited observer data summaries from the 2009/10-2013/14 seasons are available inside the ADF\&G firewall at
+
+\url{http://kodweb.fishgame.state.ak.us/index/Data_Access:Scallop_Observer}.
+
+\section{Problems with cpue data}
+
+The use of cpue as an index of abundance is based upon a fundamental relationship in fisheries analysis
+
+\begin{equation}
+C_t/E_t=qN_t,
+\end{equation}
+
+where $C_t$ is catch at time $t$, $E_t$ is the effort expended at time $t$, $N_t$ is abundance at time $t$, and $q$ is the portion of the stock captured by one unit of effort (catchability coefficient). Provided $q$ is constant over time, cpue is proportional to abundance. It is rare that $q$ is constant over the entire exploitation history. 
+
+Fishery statistics presented in this report are affected by many factors. 
+In particular, these data are influenced by the spatial structure of the Alaska scallop population and non-random allocation of fishing effort.
+Scallop CPUE is affected by each vessel's choice of fishing locations as well as weather, currents, sea state, captain and crew performance, gear tuning, processing capacity, markets etc. 
+Scallop shell height (SH) distributions from observer sampling are likewise affected by fishing locations and discarding as well as by the 4" diameter rings required by Alaska regulations that retain small scallops with lower efficiency than large scallops. 
+
+\section{Data sources and updates}
+   \subsection{Data}
+The scallop catch by haul data used in this document originate from the Kodiak Wiki in the ``Finalized Observer Data Reports" \url{http://kodweb.fishgame.state.ak.us/apps/scalobs/catchbyhaul/index}. All available data from this location (e.g., shell height, bycatch, crab sizes, scallop observer data) have been included. Age data were provided by Ryan Burt (ryan.burt@alaska.gov). 
+
+Keep in mind when comparing the cpue over different years the changes in spatial sampling (Figures~\ref{fig:akm1} and \ref{fig:akm2}).
+
+<<load,echo=FALSE,message=FALSE,warning=FALSE>>=
+#load inputs
+library(lubridate)
+library(extrafont);library(ggplot2)
+#font_import() only do this one time - it takes a while
+loadfonts(device="win")
+windowsFonts(Times=windowsFont("TT Times New Roman"))
+theme_set(theme_bw(base_size=12,base_family='Times New Roman')+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()))
+library(mgcv)
+library(maps)
+library(mapdata)
+library(mapproj)
+library(gridExtra)
+library(gtools)
+library(RColorBrewer)
+library(plyr)
+
+#import data To update with a new year simply add a new file and bind it with the others
+scallops09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopCatchByHaul.csv")
+scallops10 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopCatchByHaul.csv")
+scallops11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopCatchByHaul.csv")
+scallops12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopCatchByHaul.csv")
+scallops13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopCatchByHaul.csv")
+scallops14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopCatchByHaul.csv")
+scallops <- smartbind(scallops09,scallops10, scallops11, scallops12,scallops13, scallops14)
+
+sh09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopShellHeights.csv")
+sh10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopShellHeights.csv")
+sh11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopShellHeights.csv")
+sh12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopShellHeights.csv")
+sh13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopShellHeights.csv")
+sh14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopShellHeights.csv")
+sh <- smartbind(sh09,sh10,sh11,sh12,sh13,sh14)
+
+ages <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/scallop_ages_bcw.csv")
+ages <- ages[,2:47]
+ages14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014ScallopShellAgeData.csv")
+
+
+#adjust names to match other files
+names(ages14) <- c('id', 'trip_id', 'haul_id', 'aged_by','fishery', 'fishery_season','district','vessel','trip_or_packet','date','small_or_retained','haul','shell','annuli','letter_code','number_code','shell_height' ,'a1','a2','a3','a4','a5','a6','a7','a8','a9','a10' ,'a11', 'a12','a13','a14','a15','a16','a17','a18','a19','a20','a21','a22','a23','a24','a25','a26','a27')
+
+ages<- smartbind(ages,ages14)
+
+names(ages) <- c('id', 'Trip_ID', 'Haul_ID', 'aged_by','date_aged','Fishery', 'season','District','ADFG','packetnum','stat_area','Set_Date','Rtnd_Disc','haul','shell_num','annuli','code_let','code_num','Shell_Height','a1','a2','a3','a4','a5','a6','a7','a8','a9','a10' ,'a11', 'a12','a13','a14','a15','a16','a17','a18','a19','a20','a21','a22','a23','a24','a25','a26','a27')
+#adjust dates
+scallops$set_date <- as.Date(scallops$Set_Date, "%m-%d-%Y")
+scallops$year <- as.numeric(format(scallops$set_date, "%Y"))
+scallops$date <- yday(scallops$set_date)
+scallops$year <- ifelse(scallops$date<100, scallops$year-1, scallops$year)
+scallops$Year <- factor(scallops$year)
+scallops$vessel <- factor(scallops$ADFG)
+
+ages$set_date <- as.Date(ages$Set_Date, "%m/%d/%Y")
+ages$year <- as.numeric(format(ages$set_date, "%Y"))
+ages$date <- yday(ages$set_date)
+ages$year <- ifelse(ages$date<100, ages$year-1, ages$year)
+ages$Year <- factor(ages$year)
+
+#plotting smotting
+#year 2009-2014 colors and breaks
+values <- c('2014'='#542788bb','2013'='#998ec340','2012'='#d8daeb40',
+         '2011'='#fee0b640','2010'='#f1a34040','2009'='#b3580640') 
+breaks <- c('2014', '2013','2012','2011','2010','2009')
+@
+
+<<akmap,fig=TRUE, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
+# Map
+ak <- map_data('worldHires', c('USA:Alaska','Canada'))
+akmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(scallops$Set_Lon,na.rm=T)-.2,max(scallops$Set_Lon,na.rm=T)+.2),
+             ylim=c(min(scallops$Set_Lat,na.rm=T)-.2,max(scallops$Set_Lat,na.rm=T)+.2))
+
+#akmap1
+ak1 <- akmap + geom_point(data=scallops,aes(Set_Lon,Set_Lat,color=District),alpha=.35)+
+   scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
+                                'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
+                                ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
+                                ,'O'="#e31a1c"),  
+                       breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
+                                'Q','O'), name='District')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
+   )))+ theme(legend.key = element_blank())+
+   theme(plot.margin=unit(c(0,0,0,0),"mm"))
+
+#akmap2
+ak2 <- akmap + geom_point(data=subset(scallops, year==2014),aes(Set_Lon,Set_Lat,color=District),alpha=.35)+
+   scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
+                                'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
+                                ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
+                                ,'O'="#e31a1c"),  
+                       breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
+                                'Q','O'), name='District')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
+   )))+ theme(legend.key = element_blank())+
+   theme(plot.margin=unit(c(0,0,0,0),"mm"))
+grid.arrange(ak1,ak2,ncol=1)
+@
+
+ \subsection{Analysis updates/changes}
+Catch per unit of effort is calculated as retained shelled meat weight/area swept (cpue), additionally the round weight/area swept (rcpue) is calculated to allow for examinations of biological differences. 
+This is different from how it is reported in previous summaries, where cpue is calculated as the shelled meat weight/hours dredged. This has been changed to reflect that there are different trawl configurations (e.g., size, number, etc.) and the speed that a trawl is fished, therefore an evaluation by time is not the best descriptor of effort and area-based estimates of CPUE should be more precise. Unfortunately while exploring these data it is obvious that a number of values are ``generalized", that is they are rounded, something that may add up to a substantial bias. It would be good to work with the fleet and observer program to try and generate more accurate values (i.e., actual dredge times, not 20 min, 30 min, etc.). I've adjusted the cpue estimates with a multiplier of 10\% of the mean cpue  following methods in Campbell (2004) and log transformed (Figure~\ref{fig:log}). The transformed cpue distribution meets the assumption of normality.
+<<cpue,fig=TRUE, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
+
+#remove data where dredge hours & area swept are zero
+scallops <- subset(scallops,Area_Swept.nm2.>0)
+
+#calculate round weight cpue by time and by area 
+scallops$rw.cpue.t <- scallops$Round_Weight/scallops$Dredge_Hrs
+scallops$rw.cpue.a <- scallops$Round_Weight/scallops$Area_Swept.nm2.
+
+#calculate meat weight cpue by time and by area
+scallops$mw.cpue.t <- scallops$Meat_Weight/scallops$Dredge_Hrs
+scallops$mw.cpue.a <- scallops$Meat_Weight/scallops$Area_Swept.nm2.
+
+#Subset scallop data to eliminate zeros in the cpue
+scallop <- subset(scallops,rw.cpue.t>0)
+
+#look for normality in cpue data
+#h1 <- ggplot(scallop,aes(rw.cpue.t))+geom_histogram()
+#h2 <- ggplot(scallop,aes(rw.cpue.a))+geom_histogram()+xlab('Round weight CPUE')
+#h3 <- ggplot(scallop,aes(mw.cpue.t))+geom_histogram()
+#h4 <- ggplot(scallop,aes(mw.cpue.a))+geom_histogram()+xlab('Meat weight CPUE')
+#grid.arrange(h2,h4,ncol=2)
+
+#adjust area cpue for log transformed data (Cambell et al 1996; Cambell 2004)
+rwt.adjust <- mean(scallop$rw.cpue.t)*.10
+rwa.adjust <- mean(scallop$rw.cpue.a)*.10
+mwt.adjust <- mean(scallop$mw.cpue.t)*.10
+mwa.adjust <- mean(scallop$mw.cpue.a)*.10
+
+#log transform cpue data
+scallop$rwt.cpue <- log(scallop$rw.cpue.t+rwt.adjust)
+scallop$rwa.cpue <- log(scallop$rw.cpue.a+rwa.adjust)
+scallop$mwt.cpue <- log(scallop$mw.cpue.t+mwt.adjust)
+scallop$mwa.cpue <- log(scallop$mw.cpue.a+mwa.adjust)
+
+#Subset data
+yak <- subset(scallop,District=='YAK' |District=='D16' )
+d16 <- subset(scallop,District=='D16')
+kne <- subset(scallop,District=='KNE' )
+ksh <- subset(scallop,District=='KSH' )
+ksw <- subset(scallop,District=='KSW' )
+o <- subset(scallop,District=='O' )
+q <- subset(scallop,District=='Q' )
+
+#look for normality in cpue data
+#h1 <- ggplot(scallop,aes(rwt.cpue))+geom_histogram()
+h2 <- ggplot(scallop,aes(rwa.cpue))+geom_histogram()+xlab('Round weight CPUE')
+#h3 <- ggplot(scallop,aes(mwt.cpue))+geom_histogram()
+h4 <- ggplot(scallop,aes(mwa.cpue))+geom_histogram()+xlab('Meat weight CPUE')
+grid.arrange(h2,h4,ncol=2)
+@
+
+\section{Area D Scallop Observer Data Summary}
+\subsection{Yakutat \& District 16}
+   \subsubsection{Fishery performance}
+   A total of 120,353 pounds of meat were retained from three vessels (ADF\&G \#40924, \#54966, \#58200) that participated in the 2014/2015 Yakutat District fishery (Table~\ref{table:yakt1}). Two vessels (ADF\&G \#40924, \#58200) participated in the District 16 fishery (note that all of Bed 6 is included in this assessment) and caught a total of 9,140 pounds of scallop meat (Table~\ref{table:d16t1}).
+
+\begin{table}
+\centering
+\caption{Yakutat district catch summary for the 2015/15 season.}
+
+\label{table:yakt1}
+   \begin{tabular}{lcccccc}
+   			&  \multicolumn{2}{c}{Retained catch} & Dredge  & Number  &   \\ 
+		Year	&(lb meat)  & (lb round) & hours & hauls  & cpue$^a$    \\ 
+\hline	1995	& 242,491& 3,214,968 &  4,712&  2,597&  51   \\ 
+		1996	& 238,736& 3,195,254 &  3,982&  2,102&  60    \\ 
+		1997/98	& 242,940& 	3,282,860& 	3,956& 	1,958& 	61\\
+		1998/99	& 241,678& 	3,475,996& 	4,192& 	2,193& 	58\\
+		1999/00	& 249,681& 	3,119,103& 	3,840& 	1,720& 	65\\
+		2000/01	& 195,699& 	2,734,559& 	4,241& 	2,111& 	46\\
+		2001/02	& 103,800& 	1,521,537& 	2,406& 	1,096& 	43\\
+		2002/03	& 122,718& 	1,541,867& 	2,439& 	1,243& 	50\\
+		2003/04	& 160,918& 	1,939,004& 	3,358& 	1,716& 	48\\
+		2004/05	& 86,950& 	1,262,499& 	2,134& 	1,194& 	41\\
+		2005/06	& 199,351& 	2,662,031& 	5,089& 	2,585& 	39\\
+		2006/07	& 150,950& 	1,771,229& 	2,817& 	1,533& 	54\\
+		2007/08	& 125,960& 	1,593,223& 	2,601& 	1,416& 	48\\
+		2008/09	& 150,289& 	2,053,912& 	3,286& 	1,825& 	46\\
+		2009/10	& 158,901& 	2,218,840& 	3,975& 	2,580& 	40\\
+		2010/11	& 156,612& 	2,087,228& 	3,495& 	2,020& 	45\\
+		2011/12	& 157,025& 	2,386,748& 	4,622& 	2,703& 	34\\
+		2012/13	& 120,577& 	1,708,044& 	3,402& 	1,988& 	35\\
+		2013/14	& 122,290& 	1,540,114&	2,391& 	1,348& 	51\\
+		2014/15	& 120,353& 	1,446,693& 	2,727& 	1,597& 	44\\
+	\hline	
+	\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	
+	\end{tabular} 
+\end{table}
+   
+\begin{table}
+\centering
+\caption{District 16 catch summary for the 2014/15 season.}
+
+\label{table:d16t1}
+   \begin{tabular}{lcccccc}
+   			&  \multicolumn{2}{c}{Retained catch} & Dredge  & Number  &   \\ 
+		Year	&(lb meat)  & (lb round) & hours & hauls  & cpue$^a$    \\ 
+\hline   1995&   33,302	 &  447,469&	1,095&	599&	30\\
+         1996&	34,060	  & 422,064&	917&	554&	37\\
+         1997/98&	22,890&	265,882&	561&	105&	41\\
+         1998/99&	34,153&	384,286&	702&	449&	49\\
+         1999/00&	34,624&	292,625&	674&	299&	51\\
+         2000/01&	30,904&	310,370&	476&	359&	65\\
+         2001/02&	20,398&	245,319&	417&	291&	49\\
+         2002/03&	3,685	 &  60,928&	100&	244&	37\\
+         2003/04&	1,072	 &  16,780&	18	 &  193&	60\\
+         2004/05&	24,430&	326,228&	419&	55	 &  58\\
+         2005/06&	13,650&	209,487&	407&	12	  & 34\\
+         2006/07&	13,445&	184,106&	309&	111&	44\\
+         2007/08&	180	 &  8,888	 &  14	 &  197&	13\\
+         2008/09&	20,986&	207,251&	423&	160&	50\\
+         2009/10&	13,591&	210,006&	498	&299&	27\\
+         2010/11&	2,655&	   31,266&	83	  & 54	 &  32\\
+         2011/12&	1,826	 &  21,978&	59	 &  51	 &  31\\
+         2012/13&	26,713&	335,178&	734&	448&	36\\
+         2013/14&	25,110&	313,000&	634&	368&	40\\
+         2014/15&	9,140&	   108,803&	413&	223&	22\\
+
+	\hline	
+	\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	
+	\end{tabular} 
+\end{table}
+
+<<yak,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#######################
+#Yak
+#######################
+
+#split by bed
+yak$bed = NA
+yak<-within(yak,bed[Set_Lon > -138.3]<-6)#actually bed D16
+yak<-within(yak,bed[Set_Lon < -138.3]<-5)
+yak<-within(yak,bed[Set_Lon < -138.79]<-4)
+yak<-within(yak,bed[Set_Lon < -140.1]<-3)
+yak<-within(yak,bed[Set_Lon < -142.15]<-2)
+yak<-within(yak,bed[Set_Lon < -142.7]<-1)
+yak<-within(yak,bed[Set_Lon < -143.5]<-0)#actually bed B
+
+#remove incomplete data
+yak <- yak[complete.cases(yak),]
+yak$Bed <- factor(yak$bed)
+#change bed names
+replace <- c("0"="B", "6"='D16')
+yak$Bed <- revalue(yak$Bed, replace)
+
+#reorder levels for plotting
+#neworder <- c("B","1","2", "3", "4", "5",'D16')
+#yak2 <- arrange(transform(yak,Bed=factor(Bed,levels=neworder)),Bed)
+
+#map of sample locations
+
+yakmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(yak$Set_Lon,na.rm=T)-.2,max(yak$Set_Lon,na.rm=T)+.2),
+             ylim=c(min(yak$Set_Lat,na.rm=T)-.2,max(yak$Set_Lat,na.rm=T)+.2))
+
+#yakmap1
+yakmap+geom_point(data=subset(yak, year<2012),aes(Set_Lon,Set_Lat,color=Bed,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)
+@
+
+<<yak2,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#yakmap2
+yakmap+geom_point(data=subset(yak, year>2011),aes(Set_Lon,Set_Lat,color=Bed,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)
+@
+
+<<yakcpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+
+#density and number of tows
+m1 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+
+   facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values, breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+
+   facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values, breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+
+grid.arrange(m1,m2,ncol=2)
+@
+
+<<yakfit,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#Model the CPUE
+
+fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=yak, gamma=1.4)
+#plot(yak$Bed,resid(fit))
+yak$fit <- fitted(fit)
+
+#plot Yak model fits
+f1 <- ggplot(yak, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,  
+                     breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  
+                      breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(yak, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,  
+                     breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  
+                      breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+@
+
+<<yaksh,fig=TRUE, fig.pos="H", fig.cap="Shell heights by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#Shell heights
+yak.sh <- merge(yak,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#SH by year
+s1 <- ggplot(yak.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,  
+                     breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  
+                      breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+s2 <- ggplot(yak.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,   breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<yaksh14,fig=TRUE, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for Area D in 2014.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#SH by bed
+s1 <- ggplot(subset(yak.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
+s2 <- ggplot(subset(yak.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<yakage,fig=TRUE, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#Ages
+
+yak.age <- merge(yak, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+
+
+#age by year
+a1 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+a2 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(a1,a2,ncol=2)
+@
+
+<<yakagesh,fig=TRUE, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#yakmap+geom_point(data=subset(yak.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   #guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+scale_colour_gradientn(colours=rainbow(5))
+#yakmap+geom_point(data=subset(yak.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   #guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+scale_colour_gradientn(colours=rainbow(5))
+
+#ggplot(yak.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+#ggplot(yak.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+as1 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=yak.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+as2 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=yak.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+grid.arrange(as1,as2,ncol=2)
+@
+
+<<yakagex,echo=FALSE,message=FALSE,warning=FALSE>>=
+#Extras
+#ggplot(yak.age, aes(annuli, Meat_Weight, fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='gam',formula=y~s(x,k=3))+coord_cartesian(ylim=c(0,155),xlim=c(0,20))
+
+#ggplot(yak.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()+coord_cartesian(ylim=c(0,155),xlim=c(0,20))
+
+
+#ggplot(yak.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+#ggplot(yak.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+#ggplot(yak.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='gam',formula=y~s(x,k=4))
+#ggplot(yak.sh, aes(Meat_Weight,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+@
+
+
+\section{Area K}
+\subsection{Kodiak Northeast District}
+<<kne,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#######################
+#KNE
+#######################
+
+#split by bed
+kne$bed = NA
+kne<-within(kne,bed[Set_Lat > 57.8]<-1)
+kne<-within(kne,bed[Set_Lat < 57.8& Set_Lat > 57.17 & Set_Lon>-151.9]<-2)
+kne<-within(kne,bed[ Set_Lon< -151.9]<-3)
+kne<-within(kne,bed[ Set_Lat<57.03 & Set_Lon> -152.2]<-4)
+kne<-within(kne,bed[ Set_Lat<56.9 & Set_Lon> -152.3]<-5)
+kne<-within(kne,bed[ Set_Lat<56.95 & Set_Lon< -152.5]<-6)
+kne$Bed <- factor(kne$bed)
+
+#remove incomplete data
+kne <- kne[complete.cases(kne),]
+
+#map of sample locations
+
+knemap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(kne$Set_Lon,na.rm=T)-.2,max(kne$Set_Lon,na.rm=T)+.2),
+             ylim=c(min(kne$Set_Lat,na.rm=T)-.2,max(kne$Set_Lat,na.rm=T)+.2))
+
+knemap+geom_point(data=kne, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wrap(~ Year)+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   theme(legend.key = element_blank(),legend.position = c(0.89, 0.01),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+@
+
+#RAW density and number of tows
+m1 <- ggplot(kne, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(kne, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(m1,m2,ncol=2)
+                                           
+#Model the CPUE
+                                           
+fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=kne, gamma=1.4)
+#plot(kne$Bed,resid(fit))
+kne$fit <- fitted(fit)
+f1 <- ggplot(kne, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(kne, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+                                           
+                                           
+#Shell heights
+kne.sh <- merge(kne,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+                                           
+#SH by year
+ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+                                           
+ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+                                           
+#SH by bed
+ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
+ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
+                                           
+ #Ages
+                                           
+kne.age <- merge(kne, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+                                           
+                                           
+#age by year
+ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.85, 0.075),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+                                           
+ggplot(kne.age, aes(annuli, fill=Bed))+geom_histogram(alpha=.2)+facet_grid(Year~.)
+                                           
+                                           
+                                           
+knemap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+      guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+      scale_colour_gradientn(colours = =rainbow(5))
+
+knemap+geom_point(data=subset(kne.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+       guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+      scale_colour_gradientn(colours=rainbow(5))
+                                           
+ggplot(kne.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+ggplot(kne.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+                                           
+#difference between shell height samples and shell height ages
+ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+      geom_density(data=kne.sh, aes(Shell_Height), alpha=.2,fill=4)
+                                           
+ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
+       geom_density(data=kne.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+                                           
+                                           
+ggplot(kne.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+      stat_smooth()+coord_cartesian(xlim=c(0,20))
+ggplot(kne.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+      stat_smooth()+coord_cartesian(xlim=c(0,20))
+                                           
+                                           
+ggplot(kne.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(kne.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(kne.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(kne.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+                                           
+                                           
+ggplot(kne.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(kne.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+<<ksh,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#######################
+#KSH
+#######################
+
+#split by bed
+ksh$bed = NA
+ksh<-within(ksh,bed[Set_Lat > 58.35]<-1)
+ksh<-within(ksh,bed[Set_Lat < 58.35]<-2)
+ksh<-within(ksh,bed[Set_Lat < 58.2]<-3)
+ksh<-within(ksh,bed[Set_Lat < 58]<-4)
+ksh<-within(ksh,bed[Set_Lat < 58 & Set_Lon >-154.51]<-5)
+ksh<-within(ksh,bed[Set_Lon >-154.68 & Set_Lon < -154.51]<-6)
+ksh<-within(ksh,bed[Set_Lon < -154.68]<-7)
+ksh$Bed <- factor(ksh$bed)
+
+bvalues <- c('1'='#e41a1c','2'='#377eb8','3'='#4daf4a',
+            '4'='#984ea3','5'='#ff7f00','6'='#ffff33','7'='#a65628') 
+bbreaks <- c('1', '2','3','4','5','6','7')
+
+ggplot(ksh,aes(Set_Lon, Set_Lat, color=Bed))+geom_point()
+#remove incomplete data
+ksh <- ksh[complete.cases(ksh),]
+
+#map of sample locations
+
+kshmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(ksh$Set_Lon,na.rm=T)-.2,max(ksh$Set_Lon,na.rm=T)+.2),
+             ylim=c(min(ksh$Set_Lat,na.rm=T)-.2,max(ksh$Set_Lat,na.rm=T)+.2))
+
+kshmap+geom_point(data=ksh, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wrap(~ Year)+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+      theme(legend.key = element_blank(),legend.position = c(0.1, 0.9),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')
+
+
+#RAW density and number of tows
+m1 <- ggplot(ksh, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(ksh, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(m1,m2,ncol=2)
+
+#Model the CPUE
+
+fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=ksh, gamma=1.4)
+#plot(kne$Bed,resid(fit))
+ksh$fit <- fitted(fit)
+f1 <- ggplot(ksh, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(ksh, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+
+
+#Shell heights
+ksh.sh <- merge(ksh,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#SH by year
+ggplot(ksh.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(ksh.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+#SH by bed
+ggplot(subset(ksh.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
+ggplot(subset(ksh.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
+
+#Ages
+
+ksh.age <- merge(ksh, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+
+
+#age by year
+ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.85, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(ksh.age, aes(annuli, fill=Bed))+geom_histogram(alpha=.2)+facet_grid(Year~.)
+
+
+
+kshmap+geom_point(data=subset(ksh.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours =rainbow(5))
+
+kshmap+geom_point(data=subset(ksh.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours=rainbow(5))
+
+ggplot(ksh.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+ggplot(ksh.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+ggplot(ksh.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=ksh.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+ggplot(ksh.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
+   geom_density(data=ksh.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+
+
+ggplot(ksh.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+ggplot(ksh.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+
+
+ggplot(ksh.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(ksh.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(ksh.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(ksh.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+ggplot(ksh.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(ksh.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+#######################
+#KSW
+#######################
+
+#split by bed
+ksw$bed = NA
+ksw<-within(ksw,bed[Set_Lat > 56.7]<-1)
+ksw<-within(ksw,bed[Set_Lat < 56.7]<-2)
+
+ksw$Bed <- factor(ksw$bed)
+
+bvalues <- c('1'='#e41a1c','2'='#377eb8') 
+bbreaks <- c('1', '2')
+
+ggplot(ksw,aes(Set_Lon, Set_Lat, color=Bed))+geom_point()+facet_grid(Year~.)
+#remove incomplete data
+ksw <- ksw[complete.cases(ksw),]
+
+#map of sample locations
+
+kswmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(ksw$Set_Lon,na.rm=T)-.5,max(ksw$Set_Lon,na.rm=T)+.5),
+             ylim=c(min(ksw$Set_Lat,na.rm=T)-.5,max(ksw$Set_Lat,na.rm=T)+.5))
+
+kswmap+geom_point(data=ksw, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wrap(~ Year)+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   theme(legend.key = element_blank(),legend.position = c(0.1, 0.9),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')
+
+
+#RAW density and number of tows
+m1 <- ggplot(ksw, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.45),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(ksw, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(m1,m2,ncol=2)
+
+#Model the CPUE
+
+fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=ksw, gamma=1.4)
+#plot(kne$Bed,resid(fit))
+ksw$fit <- fitted(fit)
+f1 <- ggplot(ksw, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(ksw, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+
+
+#Shell heights
+ksw.sh <- merge(ksw,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#SH by year
+ggplot(ksw.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(ksw.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+#SH by bed
+ggplot(subset(ksw.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
+ggplot(subset(ksw.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
+
+#Ages
+
+ksw.age <- merge(ksw, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+
+
+#age by year
+ggplot(ksw.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.85, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(ksw.age, aes(annuli, fill=Bed))+geom_histogram(alpha=.2)+facet_grid(Year~.)
+
+
+
+kswmap+geom_point(data=subset(ksw.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours =rainbow(5))
+
+kswmap+geom_point(data=subset(ksw.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours=rainbow(5))
+
+ggplot(ksw.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+ggplot(ksw.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+ggplot(ksw.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=ksw.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+ggplot(ksw.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
+   geom_density(data=ksw.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+
+
+ggplot(ksw.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+ggplot(ksw.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+
+
+ggplot(ksw.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(ksw.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(ksw.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(ksw.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+ggplot(ksw.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(ksw.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+#######################
+#O
+#######################
+
+#split by bed
+o$bed = NA
+o<-within(o,bed[Set_Lat > 53.5]<-1)
+o<-within(o,bed[Set_Lat < 53.5]<-2)
+o<-within(o,bed[Set_Lat < 53.2]<-3)
+
+o$Bed <- factor(o$bed)
+
+bvalues <- c('1'='#e41a1c','2'='#377eb8','3'='#238b45') 
+bbreaks <- c('1', '2','3')
+
+ggplot(o,aes(Set_Lon, Set_Lat, color=Bed))+geom_point()
+#remove incomplete data
+o <- ksw[complete.cases(o),]
+
+#map of sample locations
+
+omap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(o$Set_Lon,na.rm=T)-.5,max(o$Set_Lon,na.rm=T)+.5),
+             ylim=c(min(o$Set_Lat,na.rm=T)-.5,max(o$Set_Lat,na.rm=T)+.5))
+
+omap+geom_point(data=o, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wrap(~ Year)+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   theme(legend.key = element_blank(),legend.position = c(0.1, 0.9),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')
+
+
+#RAW density and number of tows
+m1 <- ggplot(o, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.45),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(o, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(m1,m2,ncol=2)
+
+#Model the CPUE
+
+fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=o, gamma=1.4)
+#plot(kne$Bed,resid(fit))
+o$fit <- fitted(fit)
+f1 <- ggplot(o, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(o, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+
+
+#Shell heights
+o.sh <- merge(o,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#SH by year
+ggplot(o.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(o.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+#SH by bed
+ggplot(subset(o.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~.)
+ggplot(subset(o.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)
+
+#Ages
+
+o.age <- merge(o, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+
+
+#age by year
+ggplot(o.age, aes(annuli, fill=Year, color=Year))+geom_density()+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.85, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(o.age, aes(annuli))+geom_histogram(alpha=.2)+facet_grid(Year~.)
+
+
+
+omap+geom_point(data=subset(o.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours =rainbow(5))
+
+omap+geom_point(data=subset(o.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours=rainbow(5))
+
+ggplot(o.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+ggplot(o.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+ggplot(o.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=o.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+ggplot(o.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
+   geom_density(data=o.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+
+
+ggplot(o.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+ggplot(o.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+
+
+ggplot(o.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(o.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(o.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(o.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+ggplot(o.age, aes(Depth,annuli, group=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(o.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+#######################
+#Q
+#######################
+q <- subset(q,Set_Lon>-166)
+#remove incomplete data
+q <- q[complete.cases(q),]
+
+#map of sample locations
+
+qmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(-166.2,max(q$Set_Lon,na.rm=T)+.5),
+             ylim=c(min(q$Set_Lat,na.rm=T)-.5,56.2))
+
+qmap+geom_point(data=q, aes(Set_Lon,Set_Lat), alpha=.2)+facet_wrap(~ Year)+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   theme(legend.key = element_blank(),legend.position = c(0.1, 0.9),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+
+#RAW density and number of tows
+m1 <- ggplot(q, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.45),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(q, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(m1,m2,ncol=2)
+
+#Model the CPUE
+
+fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=q, gamma=1.4)
+#plot(kne$Bed,resid(fit))
+q$fit <- fitted(fit)
+f1 <- ggplot(q, aes(fit,fill=Year,color=Year))+geom_density()+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(q, aes(fit,fill=Year,color=Year))+geom_histogram()+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+
+
+#Shell heights
+q.sh <- merge(q,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#SH by year
+ggplot(q.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(q.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+#SH by bed
+ggplot(subset(q.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)
+ggplot(subset(q.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)
+
+#Ages
+
+q.age <- merge(q, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+
+
+#age by year
+ggplot(q.age, aes(annuli, fill=Year, color=Year))+geom_density()+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.85, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+ggplot(q.age, aes(annuli))+geom_histogram(alpha=.2)+facet_grid(Year~.)
+
+
+
+qmap+geom_point(data=subset(q.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours =rainbow(5))
+
+qmap+geom_point(data=subset(q.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+   scale_colour_gradientn(colours=rainbow(5))
+
+ggplot(q.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+ggplot(q.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+ggplot(q.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=q.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+ggplot(q.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
+   geom_density(data=q.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+
+
+ggplot(q.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+ggplot(q.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+   stat_smooth()+coord_cartesian(xlim=c(0,20))
+
+
+ggplot(q.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(q.age, aes(Depth,annuli))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(q.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+ggplot(q.sh, aes(Depth,Shell_Height))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+ggplot(q.age, aes(Depth,annuli, group=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+ggplot(q.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+@
+
+
+\end{document}
