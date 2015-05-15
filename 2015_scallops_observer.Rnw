@@ -427,18 +427,17 @@ a1 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_g
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
-   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.23),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 a2 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~.)+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
-   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
-   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
-            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(a1,a2,ncol=2)
 @
 
-<<yakagesh,fig=TRUE, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yakagesh,fig=TRUE, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for Area D. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #yakmap+geom_point(data=subset(yak.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
    #guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+scale_colour_gradientn(colours=rainbow(5))
 #yakmap+geom_point(data=subset(yak.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
@@ -452,8 +451,12 @@ as1 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+fa
    geom_density(data=yak.sh, aes(Shell_Height), alpha=.2,fill=4)
 
 as2 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
-   geom_density(data=yak.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
+   geom_density(data=yak.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)+guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.23),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')
 grid.arrange(as1,as2,ncol=2)
+   
 @
 
 <<yakagex,echo=FALSE,message=FALSE,warning=FALSE>>=
@@ -593,41 +596,65 @@ a2 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet
 grid.arrange(a1,a2,ncol=2)
 @                                           
 
-<<>>=
-                                           
-knemap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
-      guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
-      scale_colour_gradientn(colours = =rainbow(5))
+<<kneagesh,fig=TRUE, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for District KNE.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+#yakmap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   #guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+scale_colour_gradientn(colours=rainbow(5))
+#yakmap+geom_point(data=subset(kne.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+   #guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+scale_colour_gradientn(colours=rainbow(5))
+
+#ggplot(kne.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+#ggplot(kne.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+as1 <- ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=kne.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+as2 <- ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=kne.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)+guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.23),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')
+grid.arrange(as1,as2,ncol=2)
 @
-knemap+geom_point(data=subset(kne.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
-       guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
-      scale_colour_gradientn(colours=rainbow(5))
+
+<<yakagex,echo=FALSE,message=FALSE,warning=FALSE>>=
+#Extras
+#knemap+geom_point(data=subset(kne.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+#      guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+#      scale_colour_gradientn(colours = =rainbow(5))
+
+#knemap+geom_point(data=subset(kne.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+#       guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+#      scale_colour_gradientn(colours=rainbow(5))
                                            
-ggplot(kne.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
-ggplot(kne.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+#ggplot(kne.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+#ggplot(kne.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
                                            
 #difference between shell height samples and shell height ages
-ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
-      geom_density(data=kne.sh, aes(Shell_Height), alpha=.2,fill=4)
+#ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+#      geom_density(data=kne.sh, aes(Shell_Height), alpha=.2,fill=4)
                                            
-ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
-       geom_density(data=kne.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
-                                           
-                                           
-ggplot(kne.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
-      stat_smooth()+coord_cartesian(xlim=c(0,20))
-ggplot(kne.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
-      stat_smooth()+coord_cartesian(xlim=c(0,20))
+#ggplot(kne.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~Bed, scales='free_y')+
+#       geom_density(data=kne.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)
                                            
                                            
-ggplot(kne.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
-ggplot(kne.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
-ggplot(kne.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
-ggplot(kne.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+#ggplot(kne.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+#      stat_smooth()+coord_cartesian(xlim=c(0,20))
+#ggplot(kne.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+#      stat_smooth()+coord_cartesian(xlim=c(0,20))
                                            
                                            
-ggplot(kne.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
-ggplot(kne.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+#ggplot(kne.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+#ggplot(kne.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+#ggplot(kne.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+#ggplot(kne.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+                                           
+                                           
+#ggplot(kne.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+#ggplot(kne.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+@
+
 <<ksh,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #######################
 #KSH
