@@ -4,7 +4,7 @@
 \usepackage{float}
 \usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
 \usepackage[]{authblk}
-\pretolerance=10000 
+\pretolerance=99999 
 \author{Prepared by:\\Ben Williams\\
    \href{mailto:ben.williams@alaska.gov}{ben.williams@alaska.gov}}
 \affil{Alaska Department of Fish \& Game\\
@@ -16,13 +16,12 @@
 \begin{document}
    \maketitle
 	\tableofcontents
-      \listoffigures
-   \listoftables
-\begin{document}
+
+
 \section{Background}
 This report summarizes weathervane scallop \textit{Patinopecten caurinus} fishery data for data collected by the onboard observer program during the 2014/15 season. 
 The information is provided by the scallop observer program to aid ADF\&G Southeast Region staff in setting guideline harvest levels (GHLs) for the 2015/16 scallop season scheduled to begin July 1. 
-Although scallop vessel operators sign waivers that allow ADF\&G to publish data collected by the onboard observer program, material included in this report such as individual vessel fishing locations, catches, and catch rates are \textbf{\color{red}{CONFIDENTIAL}} and should not be released to the public.
+Although scallop vessel operators sign waivers that allow ADF\&G to publish data collected by the onboard observer program, material included in this report such as individual vessel fishing locations, catches, and catch rates are \textit{\color{red}{Confidential}} and should not be released to the public.
 
 Amendment 3 to the Fishery Management Plan for the Scallop Fishery off Alaska (FMP) delegated authority to manage all aspects of the federal waters scallop fishery except limited access to the State of Alaska. 
 ADF\&G sets GHLs prior to each season, opens and closes scallop fishing areas and districts, oversees the onboard observer program, monitors scallop fishery catch and bycatch inseason, summarizes scallop management activities in department publications, and participates in the federal management process through the North Pacific Fishery Management Council (NPFMC) and Scallop Plan Team (SPT).
@@ -38,13 +37,13 @@ Details on the  BOF action are available at
 
 \url{http://www.adfg.alaska.gov/index.cfm?adfg=fisheriesboard.meetinginfo&date=01-07-2014&meeting=kodiak}.
 
-At present, it appears that no new participants will be entering the 2015/16 state water scallop fishery. 
+At present, it appears that no new participants will be entering the 2015/16 state waters scallop fishery. 
 We do know that all four vessels with federal-waters licenses will legally be able to fish scallops in state waters beginning July 1, 2015; previously, only one Alaska Scallop Association vessel held a state-waters permit.
 
 Estimates of scallop abundance from fishery-independent surveys are not available. 
 ADF\&G managers rely on data collected by the onboard scallop observer program including logbook data on fishing locations, catch, effort, catch-per-unit-effort (cpue), and bycatch. 
 Inseason cpue and bycatch data from onboard observers may also be used in making scallop management decisions such as time/area closures. 
-Summaries of inseason data (when fishing is open) as well as edited observer data summaries from the 2009/10-2013/14 seasons are available inside the ADF\&G firewall at
+Summaries of inseason data (when fishing is open) as well as edited observer data summaries from the 2009/10-2014/15 seasons are available inside the ADF\&G firewall at
 
 \url{http://kodweb.fishgame.state.ak.us/index/Data_Access:Scallop_Observer}.
 
@@ -63,12 +62,14 @@ In particular, these data are influenced by the spatial structure of the Alaska 
 Scallop cpue is affected by each vessel's choice of fishing locations as well as weather, currents, sea state, captain and crew performance, gear tuning, processing capacity, markets etc. 
 Scallop shell height (SH) distributions from observer sampling are likewise affected by fishing locations and discarding as well as by the 4" diameter rings required by Alaska regulations that retain small scallops with lower efficiency than large scallops. 
 
-Standardizing cpue (controlling for variables that affect catch aside from poopulation abundance) is difficult, though standardized data are presented in some sections of this document. 
+Standardizing cpue (controlling for variables that affect catch aside from population abundance) is difficult, though standardized data are presented in some sections of this document. \textit{This standardization is a cursory effort and needs to be fully evaluated}.
 
 Standardization was done with generalized additive models (GAMs) of form:
 \begin{equation}
-cpue=f_1(depth)+f_2(lon,lat)+f_3(bed)+year+vessel+\epsilon,
+log(cpue)=f_1(depth)+f_2(lon,lat)+f_3(bed)+year_i+vessel_j+\epsilon_{ij},
 \end{equation}
+
+where $f_i$ are smoothing functions, year and vessel are catagorical variables and bed is incorporated as a random effect.
  
 
 \section{Data sources and updates}
@@ -76,6 +77,10 @@ cpue=f_1(depth)+f_2(lon,lat)+f_3(bed)+year+vessel+\epsilon,
 The scallop catch by haul data used in this document originate from the Kodiak Wiki in the ``Finalized Observer Data Reports" \url{http://kodweb.fishgame.state.ak.us/apps/scalobs/catchbyhaul/index}. All available data from this location (e.g., shell height, bycatch, crab sizes, scallop observer data) have been included. Age data were provided by Ryan Burt (ryan.burt@alaska.gov). 
 
 Keep in mind when comparing the cpue over different years the changes in spatial sampling (Figure~\ref{fig:akmap}).
+
+ \subsection{Analysis updates/changes}
+Catch per unit of effort is calculated as retained shelled meat weight/area swept (cpue). 
+This is different from how it is reported in previous summaries, where cpue is calculated as the shelled meat weight/hours dredged. This has been changed to reflect that there are different trawl configurations (e.g., size, number, etc.) and the speed that a trawl is fished, therefore an evaluation by time is not the best descriptor of effort and area-based estimates of cpue should be more precise. \emph{Unfortunately while exploring these data it is obvious that a number of values are ``generalized", that is they are rounded, something that may add up to a substantial bias. It would be good to work with the fleet and observer program to try and generate more accurate values (i.e., actual dredge times, not 20 min, 30 min, etc.)}. I've adjusted the cpue estimates with a multiplier of 10\% of the mean cpue  following methods in Campbell (2004) and log transformed (Figure~\ref{fig:log}). The transformed cpue distribution meets the assumption of normality, non-transformed data do not.
 
 <<load,echo=FALSE,message=FALSE,warning=FALSE>>=
 #load inputs
@@ -179,9 +184,7 @@ ak2 <- akmap + geom_point(data=subset(scallops, year==2014),aes(Set_Lon,Set_Lat,
 grid.arrange(ak1,ak2,ncol=1)
 @
 
- \subsection{Analysis updates/changes}
-Catch per unit of effort is calculated as retained shelled meat weight/area swept (cpue), additionally the round weight/area swept (rcpue) is calculated to allow for examinations of biological differences. 
-This is different from how it is reported in previous summaries, where cpue is calculated as the shelled meat weight/hours dredged. This has been changed to reflect that there are different trawl configurations (e.g., size, number, etc.) and the speed that a trawl is fished, therefore an evaluation by time is not the best descriptor of effort and area-based estimates of CPUE should be more precise. Unfortunately while exploring these data it is obvious that a number of values are ``generalized", that is they are rounded, something that may add up to a substantial bias. It would be good to work with the fleet and observer program to try and generate more accurate values (i.e., actual dredge times, not 20 min, 30 min, etc.). I've adjusted the cpue estimates with a multiplier of 10\% of the mean cpue  following methods in Campbell (2004) and log transformed (Figure~\ref{fig:log}). The transformed cpue distribution meets the assumption of normality.
+
 <<cpue,fig=TRUE, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
 
 #remove data where dredge hours & area swept are zero
@@ -239,9 +242,12 @@ grid.arrange(h2,h4,ncol=2)
    \subsubsection{Fishery performance}
    A total of 120,353 pounds of meat were retained from three vessels (ADF\&G \#40924, \#54966, \#58200) that participated in the 2014/2015 Yakutat District fishery (Table~\ref{table:yakt1}). Two vessels (ADF\&G \#40924, \#58200) participated in the District 16 fishery (note that all of Bed 6 is included in this assessment) and caught a total of 9,140 pounds of scallop meat (Table~\ref{table:d16t1}).
 
+It is evident that there is substantial spatial fishing variability within a given bed by year (Figures~\ref{yak} and \ref{yak2}). The non-standardized cpue shows a general trend in 2014/15 of higher cpue to the West (bed B) and lower cpue to the East (bed D16).
+
+
 \begin{table}
 \centering
-\caption{Yakutat district catch summary for the 2015/15 season.}
+\caption{Yakutat district catch summary for the 2014/15 season.}
 
 \label{table:yakt1}
    \begin{tabular}{lcccccc}
@@ -352,7 +358,7 @@ yakmap+geom_point(data=subset(yak, year>2011),aes(Set_Lon,Set_Lat,color=Bed,widt
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)
 @
 
-<<yakcpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yakcpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D cpue. The left pane shows the cpue for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 
 #density and number of tows
 m1 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+
@@ -364,7 +370,7 @@ m1 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
 m2 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+
-   facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   facet_grid(Bed~.)+xlab('log(cpue)')+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values, breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
@@ -400,7 +406,7 @@ grid.arrange(f1,f2,ncol=2)
 @
 
 
-<<yakfit2,fig=TRUE, fig.pos="H", fig.cap="Raw and standardized CPUE by year and bed for District D.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
+<<yakfit2,fig=TRUE, fig.pos="H", fig.cap="Standardized and raw cpue by year and bed for District D. Standardized cpue have bootstrap estimates 95\\% confidence levels, the raw cpue have normal approximation confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
 r1 <- ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
    scale_fill_manual(values = c('B'='#a6bddb40','1'='#998ec340','2'='#99d8c940',
          '3'='#fee0b640','4'='#f1a34030','5'='#3690c030', 'D16'='#a3580610'),
@@ -409,7 +415,7 @@ r1 <- ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mea
          '3'='#fee0b640','4'='#f1a34030','5'='#3690c030', 'D16'='#a3580610'),
          breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.2),legend.background = 
-            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylim(7,9.5)
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylim(7,9.5)+ylab('standardized cpue')
 
 a <- aggregate(mwa.cpue~year+Bed,data=yak, FUN=mean)
 b <- aggregate(mwa.cpue~year+Bed,data=yak, FUN=sd)
@@ -428,10 +434,10 @@ r2 <- ggplot(d, aes(year,mwa.cpue, fill=Bed))+geom_line(aes(color=Bed))+
    scale_color_manual(values = c('B'='#a6bddb40','1'='#998ec340','2'='#99d8c940',
          '3'='#fee0b640','4'='#f1a34030','5'='#3690c030', 'D16'='#a3580610'),
          breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+coord_cartesian(ylim=c(7,9.5))+
-      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('cpue')
 grid.arrange(r1,r2,ncol=2)
 @
-
+\end{document}
 <<yaksh,fig=TRUE, fig.pos="H", fig.cap="Shell heights by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
 #Shell heights
 yak.sh <- merge(yak,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
@@ -1549,4 +1555,3 @@ ggplot(q.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geo
 @
 
 
-\end{document}
