@@ -4,7 +4,7 @@
 \usepackage{float}
 \usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
 \usepackage[]{authblk}
-\pretolerance=10000 
+\pretolerance=99999 
 \author{Prepared by:\\Ben Williams\\
    \href{mailto:ben.williams@alaska.gov}{ben.williams@alaska.gov}}
 \affil{Alaska Department of Fish \& Game\\
@@ -16,13 +16,12 @@
 \begin{document}
    \maketitle
    \tableofcontents
-      \listoffigures
-   \listoftables
-\begin{document}
+
+
 \section{Background}
 This report summarizes weathervane scallop \textit{Patinopecten caurinus} fishery data for data collected by the onboard observer program during the 2014/15 season. 
 The information is provided by the scallop observer program to aid ADF\&G Southeast Region staff in setting guideline harvest levels (GHLs) for the 2015/16 scallop season scheduled to begin July 1. 
-Although scallop vessel operators sign waivers that allow ADF\&G to publish data collected by the onboard observer program, material included in this report such as individual vessel fishing locations, catches, and catch rates are \textbf{\color{red}{Confidential}} and should not be released to the public.
+Although scallop vessel operators sign waivers that allow ADF\&G to publish data collected by the onboard observer program, material included in this report such as individual vessel fishing locations, catches, and catch rates are \textit{\color{red}{Confidential}} and should not be released to the public.
 
 Amendment 3 to the Fishery Management Plan for the Scallop Fishery off Alaska (FMP) delegated authority to manage all aspects of the federal waters scallop fishery except limited access to the State of Alaska. 
 ADF\&G sets GHLs prior to each season, opens and closes scallop fishing areas and districts, oversees the onboard observer program, monitors scallop fishery catch and bycatch inseason, summarizes scallop management activities in department publications, and participates in the federal management process through the North Pacific Fishery Management Council (NPFMC) and Scallop Plan Team (SPT).
@@ -63,7 +62,7 @@ In particular, these data are influenced by the spatial structure of the Alaska 
 Scallop cpue is affected by each vessel's choice of fishing locations as well as weather, currents, sea state, captain and crew performance, gear tuning, processing capacity, markets etc. 
 Scallop shell height (SH) distributions from observer sampling are likewise affected by fishing locations and discarding as well as by the 4" diameter rings required by Alaska regulations that retain small scallops with lower efficiency than large scallops. 
 
-Standardizing cpue (controlling for variables that affect catch aside from population abundance) is difficult, though standardized data are presented in some sections of this document. \emph{This standardization is a cursory effort and needs to be fully evaluated}.
+Standardizing cpue (controlling for variables that affect catch aside from population abundance) is difficult, though standardized data are presented in some sections of this document. \textit{This standardization is a cursory effort and needs to be fully evaluated}.
 
 Standardization was done with generalized additive models (GAMs) of form:
 \begin{equation}
@@ -407,7 +406,7 @@ grid.arrange(f1,f2,ncol=2)
 @
 
 
-<<yakfit2,fig=TRUE, fig.pos="H", fig.cap="Standardized and raw cpue by year and bed for District D. Standardized cpue have bootstrap estimates 95% confidence levels, the raw cpue have normal approximation confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
+<<yakfit2,fig=TRUE, fig.pos="H", fig.cap="Standardized and raw cpue by year and bed for District D. Standardized cpue have bootstrap estimates 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
 r1 <- ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
    scale_fill_manual(values = c('B'='#a6bddb40','1'='#998ec340','2'='#99d8c940',
          '3'='#fee0b640','4'='#f1a34030','5'='#3690c030', 'D16'='#a3580610'),
