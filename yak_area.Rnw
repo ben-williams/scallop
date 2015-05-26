@@ -16,7 +16,8 @@
 \begin{document}
    \maketitle
    \tableofcontents
-
+\listoftables
+\listoffigures
 
 \section{Background}
 This report summarizes weathervane scallop \textit{Patinopecten caurinus} fishery data for data collected by the onboard observer program during the 2014/15 season. 
@@ -106,7 +107,7 @@ scallops11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/20
 scallops12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopCatchByHaul.csv")
 scallops13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopCatchByHaul.csv")
 scallops14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopCatchByHaul.csv")
-scallops <- smartbind(scallops09,scallops10, scallops11, scallops12,scallops13, scallops14)
+scallops <- rbind(scallops09,scallops10, scallops11, scallops12,scallops13, scallops14)
 
 sh09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopShellHeights.csv")
 sh10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopShellHeights.csv")
@@ -114,7 +115,23 @@ sh11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-sca
 sh12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopShellHeights.csv")
 sh13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopShellHeights.csv")
 sh14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopShellHeights.csv")
-sh <- smartbind(sh09,sh10,sh11,sh12,sh13,sh14)
+sh <- rbind(sh09,sh10,sh11,sh12,sh13,sh14)
+
+cr09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-crabSizes.csv")
+cr10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-crabSizes.csv")
+cr11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-crabSizes.csv")
+cr12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-crabSizes.csv")
+cr13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-crabSizes.csv")
+cr14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-crabSizes.csv")
+crab <- rbind(cr09,cr10,cr11,cr12,cr13,cr14)
+
+by09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopBycatchByDay.csv")
+by10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopBycatchByDay.csv")
+by11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopBycatchByDay.csv")
+by12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopBycatchByDay.csv")
+by13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopBycatchByDay.csv")
+by14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopBycatchByDay.csv")
+by <- rbind(by09,by10,by11,by12,by13,by14)
 
 ages <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/scallop_ages_bcw.csv")
 ages <- ages[,2:47]
@@ -141,6 +158,13 @@ ages$date <- yday(ages$set_date)
 ages$year <- ifelse(ages$date<100, ages$year-1, ages$year)
 ages$Year <- factor(ages$year)
 
+by$set_date <- as.Date(by$Set_Date, "%m-%d-%Y")
+by$year <- as.numeric(format(by$set_date, "%Y"))
+by$date <- yday(by$set_date)
+by$year <- ifelse(by$date<100, by$year-1, by$year)
+by$Year <- factor(by$year)
+by$vessel <- factor(by$ADFG)
+
 #plotting smotting
 #year 2009-2014 colors and breaks
 values <- c('2014'='#542788bb','2013'='#998ec340','2012'='#d8daeb40',
@@ -148,7 +172,7 @@ values <- c('2014'='#542788bb','2013'='#998ec340','2012'='#d8daeb40',
 breaks <- c('2014', '2013','2012','2011','2010','2009')
 @
 
-<<akmap,fig=TRUE, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE>>=
+<<akmap,fig=TRUE, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=7, cache=TRUE,dev='png', dpi=300>>=
 # Map
 ak <- map_data('worldHires', c('USA:Alaska','Canada'))
 akmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group),fill=8,color='black') +
@@ -163,9 +187,9 @@ ak1 <- akmap + geom_point(data=scallops,aes(Set_Lon,Set_Lat,color=District),alph
    scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
                                 'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
                                 ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
-                                ,'O'="#e31a1c"),  
+                                ,'O'="#e31a1c", 'C'='#31a354'),  
                        breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
-                                'Q','O'), name='District')+
+                                'Q','O','C'), name='District')+
    guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
    )))+ theme(legend.key = element_blank())+
    theme(plot.margin=unit(c(0,0,0,0),"mm"))
@@ -185,7 +209,7 @@ grid.arrange(ak1,ak2,ncol=1)
 @
 
 
-<<cpue,fig=TRUE, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
+<<cpue,fig=TRUE, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
 
 #remove data where dredge hours & area swept are zero
 scallops <- subset(scallops,Area_Swept.nm2.>0)
@@ -218,23 +242,27 @@ mwa.adjust <- mean(scallop$mw.cpue.a)*.10
 scallop$rwt.cpue <- log(scallop$rw.cpue.t+rwt.adjust)
 scallop$rwa.cpue <- log(scallop$rw.cpue.a+rwa.adjust)
 scallop$mwt.cpue <- log(scallop$mw.cpue.t+mwt.adjust)
-scallop$mwa.cpue <- log(scallop$mw.cpue.a+mwa.adjust)
+scallop$mwa.cpue <- log(scallop$mw.cpue.t+mwa.adjust)
 
 #Subset data
+eki <- subset(scallop,District=='EKI')
+wki <- subset(scallop,District=='WKI')
 yak <- subset(scallop,District=='YAK' |District=='D16' )
 d16 <- subset(scallop,District=='D16')
 kne <- subset(scallop,District=='KNE' )
 ksh <- subset(scallop,District=='KSH' )
 ksw <- subset(scallop,District=='KSW' )
+m <- subset(scallop,District=='UB' )
 o <- subset(scallop,District=='O')
 q <- subset(scallop,District=='Q')
+c <- subset(scallop,District=='C' )
 
 #look for normality in cpue data
-#h1 <- ggplot(scallop,aes(rwt.cpue))+geom_histogram()
-h2 <- ggplot(scallop,aes(rwa.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
-#h3 <- ggplot(scallop,aes(mwt.cpue))+geom_histogram()
-h4 <- ggplot(scallop,aes(mwa.cpue))+geom_histogram(alpha=.5, color='black')+xlab('Meat weight CPUE')
-grid.arrange(h2,h4,ncol=2)
+h1 <- ggplot(scallop,aes(rwt.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
+#h2 <- ggplot(scallop,aes(rwa.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
+h3 <- ggplot(scallop,aes(mwt.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Meat weight CPUE')
+#h4 <- ggplot(scallop,aes(mwa.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
+grid.arrange(h1,h3,ncol=2)
 @
 
 \section{Area D Scallop Observer Data Summary}
@@ -251,8 +279,8 @@ It is evident that there is substantial spatial fishing variability within a giv
 
 \label{table:yakt1}
    \begin{tabular}{lcccccc}
-   			&  \multicolumn{2}{c}{Retained catch} & Dredge  & Number  &   \\ 
-		Year	&(lb meat)  & (lb round) & hours & hauls  & cpue$^a$    \\ 
+            &  \multicolumn{2}{c}{Retained catch} & Dredge  & Number  &   \\ 
+   	Year	&(lb meat)  & (lb round) & hours & hauls  & cpue$^a$    \\ 
 \hline	1995	& 242,491& 3,214,968 &  4,712&  2,597&  51   \\ 
 		1996	& 238,736& 3,195,254 &  3,982&  2,102&  60    \\ 
 		1997/98	& 242,940& 	3,282,860& 	3,956& 	1,958& 	61\\
@@ -312,7 +340,7 @@ It is evident that there is substantial spatial fishing variability within a giv
 	\end{tabular} 
 \end{table}
 
-<<yak,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yak,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE,dev='png', dpi=300>>=
 #######################
 #Yak
 #######################
@@ -352,7 +380,7 @@ yakmap+geom_point(data=subset(yak, year<2012),aes(Set_Lon,Set_Lat,color=Bed,widt
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)
 @
 
-<<yak2,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yak2,fig=TRUE, fig.pos="H", fig.cap="Maps of Area D fishing locations by year.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE, dev='png', dpi=300>>=
 #yakmap2
 yakmap+geom_point(data=subset(yak, year>2011),aes(Set_Lon,Set_Lat,color=Bed,width=1.2),alpha=.2) +
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)
@@ -388,10 +416,10 @@ Bed 5 generally has one of the higher cpues, however the number of hauls is low 
 \noindent \textbf{Bed D16}\\  
 CPUE in bed D16 was lower in 2014 than in 2013, though the number of hauls were similar. This typically has the lowest cpue of any of the beds. Shell height is more broadly dispersed than in previous years, and teh ages are coparable to previous years, aside from 2009, when older ages were prevelent.
 
-<<yakcpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D cpue. The left pane shows the cpue for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yakcpue,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D cpue. The left pane shows the cpue for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE, dev='png', dpi=300>>=
 
 #density and number of tows
-m1 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+
+m1 <- ggplot(yak, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+
    facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values, breaks=breaks, name='Year')+
@@ -399,7 +427,7 @@ m1 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.22),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
-m2 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+
+m2 <- ggplot(yak, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+
    facet_grid(Bed~.)+xlab('log(cpue)')+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values, breaks=breaks, name='Year')+
@@ -408,10 +436,10 @@ m2 <- ggplot(yak, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+
 grid.arrange(m1,m2,ncol=2)
 @
 
-<<yakfit,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yakfit,fig=TRUE, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE,dev='png', dpi=300>>=
 #Model the CPUE
 
-fit <- gam(mwa.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=yak, gamma=1.4)
+fit <- gam(mwt.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=yak, gamma=1.4)
 #ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')
 #plot(yak$Bed,resid(fit))
 yak$fit <- fitted(fit)
@@ -435,40 +463,48 @@ f2 <- ggplot(yak, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed
 grid.arrange(f1,f2,ncol=2)
 @
 
-<<yakfit2,fig=TRUE, fig.pos="H", fig.cap="Standardized and raw cpue by year and bed for District D. Standardized cpue have bootstrap estimates 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE>>=
+<<yakvessel,fig=TRUE, fig.pos="H", fig.cap="Annual vessel effect from model fit.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png',dpi=300>>=
+#Model the CPUE
+
+#ggplot(yak, aes(Year,fit, fill=interaction(vessel,Bed)))+geom_boxplot()
+#ggplot(yak, aes(vessel,fit, fill=Bed))+geom_boxplot()
+ggplot(yak, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)
+@
+
+<<yakfit2,fig=TRUE, fig.pos="H", fig.cap="Standardized and raw cpue by year and bed for District D. Standardized cpue have bootstrap estimates 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 r1 <- ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
    scale_fill_manual(values = c('B'='#66250610','1'='#cc4c0210','2'='#fe992910',
          '3'='#e31a1c10','4'='#225ea810','5'='#41b6c410', 'D16'='#54278f10'),
          breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+
    scale_color_manual(values = c('B'='#662506','1'='#cc4c02','2'='#fe9929',
          '3'='#e31a1c','4'='#225ea8','5'='#41b6c4', 'D16'='#54278f'),
-         breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+ 
+         breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.2),legend.background = 
-            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylim(7,9.5)+ylab('standardized cpue')
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('standardized cpue')
 
-a <- aggregate(mwa.cpue~year+Bed,data=yak, FUN=mean)
-b <- aggregate(mwa.cpue~year+Bed,data=yak, FUN=sd)
+a <- aggregate(mwt.cpue~year+Bed,data=yak, FUN=mean)
+b <- aggregate(mwt.cpue~year+Bed,data=yak, FUN=sd)
 names(b) <- c('year','Bed', 'sd')
-c <- aggregate(mwa.cpue~year+Bed,data=yak, FUN=length)
+c <- aggregate(mwt.cpue~year+Bed,data=yak, FUN=length)
 names(c) <- c('year','Bed', 'n')
 d <- merge(a,b, by=c('year','Bed'))
 d <- merge(c,d, by=c('year','Bed'))
-d$lci <- d$mwa.cpue-2*d$sd/sqrt(d$n)
-d$uci <- d$mwa.cpue+2*d$sd/sqrt(d$n)
-r2 <- ggplot(d, aes(year,mwa.cpue, fill=Bed))+geom_line(aes(color=Bed))+
+d$lci <- d$mwt.cpue-2*d$sd/sqrt(d$n)
+d$uci <- d$mwt.cpue+2*d$sd/sqrt(d$n)
+r2 <- ggplot(d, aes(year,mwt.cpue, fill=Bed))+geom_line(aes(color=Bed))+
    geom_ribbon(aes(ymin=lci, ymax=uci))+
    scale_fill_manual(values = c('B'='#66250610','1'='#cc4c0210','2'='#fe992910',
          '3'='#e31a1c10','4'='#225ea810','5'='#41b6c410', 'D16'='#54278f10'),
          breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+
    scale_color_manual(values = c('B'='#662506','1'='#cc4c02','2'='#fe9929',
          '3'='#e31a1c','4'='#225ea8','5'='#41b6c4', 'D16'='#54278f'),
-         breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+coord_cartesian(ylim=c(7,9.5))+
+         breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+
       guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('cpue')
 grid.arrange(r1,r2,ncol=2)
 
 @
 
-<<yaksh,fig=TRUE, fig.pos="H", fig.cap="Shell heights by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yaksh,fig=TRUE, fig.pos="H", fig.cap="Shell heights by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE,dev='png', dpi=300>>=
 #Shell heights
 yak.sh <- merge(yak,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
 
@@ -489,7 +525,7 @@ s2 <- ggplot(yak.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+f
 grid.arrange(s1,s2,ncol=2)
 @
 
-<<yaksh14,fig=TRUE, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for Area D in 2014.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yaksh14,fig=TRUE, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for Area D in 2014.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE, dev='png', dpi=300>>=
 #SH by bed
 s1 <- ggplot(subset(yak.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)+
    scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
@@ -504,7 +540,23 @@ grid.arrange(s1,s2,ncol=2)
 
 @
 
-<<yakage,fig=TRUE, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE>>=
+<<yaksh3,fig=TRUE, fig.pos="H", fig.cap="Shell heights by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE,dev='png', dpi=300>>=
+
+#SH by year
+s1 <- ggplot(yak.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+ 
+   theme(legend.key = element_blank(),legend.position = c(0.2, 0.25),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+s2 <- ggplot(yak.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Year~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<yakage,fig=TRUE, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=9, cache=TRUE,dev='png', dpi=300>>=
 #Ages
 yak.age <- merge(yak, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
 #age by year
@@ -522,7 +574,7 @@ a2 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet
 grid.arrange(a1,a2,ncol=2)
 @
 
-<<yakagesh,fig=TRUE, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for Area D. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=8, cache=TRUE>>=
+<<yakagesh,fig=TRUE, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for Area D. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=8, cache=TRUE, dev='png', dpi=300>>=
 #difference between shell height samples and shell height ages
 as1 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
    geom_density(data=yak.sh, aes(Shell_Height), alpha=.2,fill=4)
@@ -536,7 +588,7 @@ grid.arrange(as1,as2,ncol=2)
 
 @
 
-<<yakagex,echo=FALSE,message=FALSE,warning=FALSE>>=
+<<yakagex,echo=FALSE,message=FALSE,warning=FALSE,dev='png', dpi=300, fig.height=8>>=
 #Extras
 #yakmap+geom_point(data=subset(yak.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
    #guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+scale_colour_gradientn(colours=rainbow(5))
