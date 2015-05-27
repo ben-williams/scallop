@@ -1683,8 +1683,8 @@ d
    \centering
    \caption{Area O catch summary for the 2014/15 season.}
    
-	\label{table:o1}
-	\begin{tabular}{lcccccc}
+   \label{table:o1}
+   \begin{tabular}{lcccccc}
 				& 		&  Catch 	& Dredge  	& Number  	&  		 \\ 
 		Year	& GHL 	&(lb meat)  & (hours) 	& hauls  	& cpue$^a$\\ 
 		\hline	
@@ -1863,7 +1863,7 @@ grid.arrange(s1,s2,ncol=2)
 @
 
 
-<<osh3, fig.pos="H", fig.cap="Shell heights by year, all beds combined, for District KNE. The left pane shows the shell heights distribution for all of the hauls, the right pane shows the number of shells sampled at a given height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+<<osh3, fig.pos="H", fig.cap="Shell heights by year, all beds combined, for Area O. The left pane shows the shell heights distribution for all of the hauls, the right pane shows the number of shells sampled at a given height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
 
 #SH by year
 s1 <- ggplot(o.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
@@ -2016,7 +2016,7 @@ The catch in 2014/15 was dominated by older larger individuals with few young sh
 
 \subsubsection{Scallop discards and crab/halibut bycatch}
 
-An estimated 24,943 Tanner Crab, a substantial decrease from the previous year, 9,868 Opilio Crab, and 19 Pacific Halibut were incidentically caught (Figure~\ref{fig:qcrab}). Estimated scallop discards were 7,961 lb (3.5\% of total round weight landed).
+An estimated 24,943 Tanner Crab, a substantial decrease from the previous year, 9,868 Opilio Crab, 19 Pacific Halibut and 223 King Crab were incidentically caught (Figure~\ref{fig:qcrab}). Estimated scallop discards were 7,961 lb (3.5\% of total round weight landed).
 
 <<tablq, eval=FALSE, echo=FALSE>>=
 a <- aggregate(Dredge_Hrs~year, data=q, FUN=sum)
@@ -2030,8 +2030,8 @@ d
 
 \begin{table}[H]
    \centering
-	\caption{Area Q catch summary for the 2014/15 season.}
-	
+   \caption{Area Q catch summary for the 2014/15 season.}
+   
 	\label{table:q1}
 	\begin{tabular}{lcccccc}
 		& 		&  Catch 	& Dredge  	& Number  	&  		 \\ 
@@ -2095,7 +2095,7 @@ m1 <- ggplot(q, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpu
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
-   theme(legend.key = element_blank(),legend.position = c(0.15, 0.45),legend.background = 
+   theme(legend.key = element_blank(),legend.position = c(0.65, 0.45),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
 m2 <- ggplot(q, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(cpue)')+
@@ -2295,28 +2295,31 @@ q.by <- merge(by, q, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'dat
 a <- aggregate(Halibut_Count~year,data=subset(by, District=='Q'), FUN=sum)
 a1 <- aggregate(Tanner_Count~year,data=subset(by, District=='Q'), FUN=sum)
 a2 <- aggregate(Opilio_Count~year,data=subset(by, District=='Q'), FUN=sum)
+a3 <- aggregate(King_Count~year,data=subset(by, District=='Q'), FUN=sum)
 b <- aggregate(Sample_Hrs~year,data=subset(by, District=='Q'), FUN=sum)
 c <- aggregate(Dredge_Hrs~year,data=q, FUN=sum)
 
 d <- merge(a,b, by='year')
 d <- merge(a1,d, by='year')
 d <- merge(a2,d, by='year')
+d <- merge(a3,d, by='year')
 d <- merge(c,d, by='year')
 
 d$hal <- d$Halibut_Count/d$Sample_Hrs*d$Dredge_Hrs
 d$tan <- d$Tanner_Count/d$Sample_Hrs*d$Dredge_Hrs
 d$opi <- d$Opilio_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$king <- d$King_Count/d$Sample_Hrs*d$Dredge_Hrs
 
-d <- d[,c(1,7:9)]
+d <- d[,c(1,7:11)]
 d<- melt(d, id.vars=c( 'year'))
 ggplot(d, aes(year, value, color=variable, group=variable))+geom_line()+geom_point(size=3)+
     scale_color_discrete(name="species",
-                         breaks=c("tan", "hal", "opi"),
-                         labels=c("Tanner", "Halibut", "Opilio"))
+                         breaks=c("tan", "hal", "opi", 'king'),
+                         labels=c("Tanner", "Halibut", "Opilio", "King"))
 @
 
 
-<<qdisc, fig.pos="H", fig.cap="Scallop estimated discard weight for Area M.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
+<<qdisc, fig.pos="H", fig.cap="Scallop estimated discard weight for Area Q.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
 q.by <- merge(by, q, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'date', 'Year', 'vessel'))
 
 a <- aggregate(Sample_Hrs~year,data=subset(by, District=='Q'), FUN=sum)
@@ -2337,6 +2340,18 @@ d$per <- d$disc/d$Round_Weight*100
 ggplot(d, aes(year, disc))+geom_line()+geom_point(size=3)+ylim(0, max(d$disc))+ylab('Scallop discard weight (lbs)')
     
 @
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Unimak Bight Exploratory Fishery Area M}
 \subsubsection{Fishery performance}
