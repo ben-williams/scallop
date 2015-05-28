@@ -1136,7 +1136,7 @@ r1 <- ggplot(ksh, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mea
 a <- aggregate(mwt.cpue~year+Bed,data=ksh, FUN=mean)
 b <- aggregate(mwt.cpue~year+Bed,data=ksh, FUN=sd)
 names(b) <- c('year','Bed', 'sd')
-c <- aggregate(mwa.cpue~year+Bed,data=ksh, FUN=length)
+c <- aggregate(mwt.cpue~year+Bed,data=ksh, FUN=length)
 names(c) <- c('year','Bed', 'n')
 d <- merge(a,b, by=c('year','Bed'))
 d <- merge(c,d, by=c('year','Bed'))
@@ -2091,14 +2091,14 @@ qmap+geom_point(data=q, aes(Set_Lon,Set_Lat), alpha=.2)+facet_wrap(~ Year)+
 
 <<qcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area Q cpue.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 #RAW density and number of tows
-m1 <- ggplot(q, aes(mwa.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpue)')+
+m1 <- ggplot(q, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.65, 0.45),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
-m2 <- ggplot(q, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(cpue)')+
+m2 <- ggplot(q, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
@@ -2445,7 +2445,7 @@ m1 <- ggplot(m, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpu
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.45),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
-m2 <- ggplot(m, aes(mwa.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(cpue)')+
+m2 <- ggplot(m, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
