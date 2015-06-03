@@ -1,0 +1,289 @@
+\documentclass{article}
+\usepackage{color}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
+\usepackage[]{authblk}
+\pretolerance=99999 
+\author{Prepared by:\\ Ben Williams\\
+   \href{mailto:ben.williams@alaska.gov}{ben.williams@alaska.gov} }
+\affil{Alaska Department of Fish \& Game\\
+   1255 W 8th Street\\
+   Juneau, AK 99811-5526}
+\title{Scallop Observer Data Summary}
+
+\begin{document}
+   \maketitle
+   \tableofcontents
+\listoftables
+\listoffigures
+
+\section{Background}
+This report summarizes weathervane scallop \textit{Patinopecten caurinus} fishery data for data collected by the onboard observer program during the 2014/15 season. 
+The information is provided by the scallop observer program to aid ADF\&G Southeast Region staff in setting guideline harvest levels (GHLs) for the 2015/16 scallop season scheduled to begin July 1. 
+Although scallop vessel operators sign waivers that allow ADF\&G to publish data collected by the onboard observer program, material included in this report such as individual vessel fishing locations, catches, and catch rates are \textit{\color{red}{Confidential}} and should not be released to the public.
+
+Amendment 3 to the Fishery Management Plan for the Scallop Fishery off Alaska (FMP) delegated authority to manage all aspects of the federal waters scallop fishery except limited access to the State of Alaska. 
+ADF\&G sets GHLs prior to each season, opens and closes scallop fishing areas and districts, oversees the onboard observer program, monitors scallop fishery catch and bycatch inseason, summarizes scallop management activities in department publications, and participates in the federal management process through the North Pacific Fishery Management Council (NPFMC) and Scallop Plan Team (SPT).
+
+Amendment of the weathervane scallop FMP to incorporate Annual Catch Limits (ACLs) required by the 2006 reauthorization of the Magnuson-Stevens Act redefined the statewide overfishing level (OFL) from 1.24 million lb to 1.29 million lb of shucked scallop meats. 
+The change was made to account for all sources of fishing mortality including harvest, discarded scallop catch in the directed fishery, bycatch in other fisheries, and survey catches. 
+The annual ACL will equal 90\% of OFL, or 1.161 million lb of shucked meats, subject to annual approval by the NPFMC. 
+For the ACL amendment analysis leading to the new OFL definition, mortality of scallops discarded in the fishery was assumed to be 20\%, and meat recovery was set at 10\% of scallop round weight.
+
+The state's vessel-based limited entry program for the state-waters scallop fishery sunsetted on December 31, 2013.
+Subsequently, the Alaska Board of Fisheries (BOF) passed a new state waters scallop fishery management plan (FMP).
+Details on the  BOF action are available at
+
+\url{http://www.adfg.alaska.gov/index.cfm?adfg=fisheriesboard.meetinginfo&date=01-07-2014&meeting=kodiak}.
+
+At present, it appears that no new participants will be entering the 2015/16 state waters scallop fishery. 
+We do know that all four vessels with federal-waters licenses will legally be able to fish scallops in state waters beginning July 1, 2015; previously, only one Alaska Scallop Association vessel held a state-waters permit.
+
+Estimates of scallop abundance from fishery-independent surveys are not available. 
+ADF\&G managers rely on data collected by the onboard scallop observer program including logbook data on fishing locations, catch, effort, catch-per-unit-effort (cpue), and bycatch. 
+Inseason cpue and bycatch data from onboard observers may also be used in making scallop management decisions such as time/area closures. 
+Summaries of inseason data (when fishing is open) as well as edited observer data summaries from the 2009/10-2014/15 seasons are available inside the ADF\&G firewall at
+
+\url{http://kodweb.fishgame.state.ak.us/index/Data_Access:Scallop_Observer}.
+
+\section{Problems with cpue data}
+
+The use of cpue as an index of abundance is based upon a fundamental relationship in fisheries analysis
+
+\begin{equation}
+C_t/E_t=qN_t,
+\end{equation}
+
+where $C_t$ is catch at time $t$, $E_t$ is the effort expended at time $t$, $N_t$ is abundance at time $t$, and $q$ is the portion of the stock captured by one unit of effort (catchability coefficient). Provided $q$ is constant over time, cpue is proportional to abundance. It is rare that $q$ is constant over the entire exploitation history. 
+
+Fishery statistics presented in this report are affected by many factors. 
+In particular, these data are influenced by the spatial structure of the Alaska scallop population and non-random allocation of fishing effort.
+Scallop cpue is affected by each vessel's choice of fishing locations as well as weather, currents, sea state, captain and crew performance, gear tuning, processing capacity, markets etc. 
+Scallop shell height distributions from observer sampling are likewise affected by fishing locations and discarding as well as by the 4" diameter rings required by Alaska regulations that retain small scallops with lower efficiency than large scallops. 
+
+Standardizing cpue (controlling for variables that affect catch aside from population abundance) is difficult, though standardized data are presented in some sections of this document. \textit{This standardization is a cursory effort and needs to be fully evaluated}.
+
+Standardization was done with generalized additive models (GAMs) of form:
+
+\begin{equation}
+log(cpue)=f_1(depth)+f_2(lon,lat)+f_3(bed)+year_i+vessel_j+\epsilon_{ij},
+\end{equation}
+
+where $f_i$ are smoothing functions, year and vessel are categorical variables and bed is incorporated as a random effect.
+ 
+
+\section{Data sources and updates}
+   \subsection{Data}
+The scallop catch by haul data used in this document originate from the Kodiak Wiki in the ``Finalized Observer Data Reports" \url{http://kodweb.fishgame.state.ak.us/apps/scalobs/catchbyhaul/index}. All available data from this location (e.g., shell height, bycatch, crab sizes, scallop observer data) have been included. Age data were provided by Ryan Burt (ryan.burt@alaska.gov). 
+
+Keep in mind when comparing the cpue over different years the changes in spatial sampling (Figure~\ref{fig:akmap}).
+
+ \subsection{Analysis updates/changes}
+Catch per unit of effort is calculated as retained shelled meat weight/hours dredged (cpue). 
+This is the same as it has been reported in previous summaries. This should be examined to reflect that there are different trawl configurations (e.g., size, number, etc.) and the speed that a trawl is fished, therefore an evaluation by time is not the best descriptor of effort and area-based estimates of cpue should be more precise. \emph{Unfortunately while exploring these data it is obvious that a number of values are ``generalized", that is they are rounded, something that may add up to a substantial bias. It would be good to work with the fleet and observer program to try and generate more accurate values (i.e., actual dredge times, not 20 min, 30 min, etc.)}. I've adjusted the cpue estimates with a multiplier of 10\% of the mean cpue  following methods in Campbell (2004) and log transformed (Figure~\ref{fig:cpue}). The transformed cpue distribution meets the assumption of normality, non-transformed data do not.
+
+<<load,echo=FALSE,message=FALSE,warning=FALSE>>=
+#load inputs
+library(lubridate)
+library(extrafont);library(ggplot2)
+#font_import() only do this one time - it takes a while
+loadfonts(device="win")
+windowsFonts(Times=windowsFont("TT Times New Roman"))
+theme_set(theme_bw(base_size=12,base_family='Times New Roman')+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()))
+library(mgcv)
+library(maps)
+library(mapdata)
+library(mapproj)
+library(gridExtra)
+library(gtools)
+library(RColorBrewer)
+library(plyr)
+library(xtable)
+
+#import data To update with a new year simply add a new file and bind it with the others
+scallops09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopCatchByHaul.csv")
+scallops10 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopCatchByHaul.csv")
+scallops11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopCatchByHaul.csv")
+scallops12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopCatchByHaul.csv")
+scallops13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopCatchByHaul.csv")
+scallops14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopCatchByHaul.csv")
+scallops <- rbind(scallops09,scallops10, scallops11, scallops12,scallops13, scallops14)
+
+sh09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopShellHeights.csv")
+sh10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopShellHeights.csv")
+sh11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopShellHeights.csv")
+sh12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopShellHeights.csv")
+sh13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopShellHeights.csv")
+sh14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopShellHeights.csv")
+sh <- rbind(sh09,sh10,sh11,sh12,sh13,sh14)
+
+cr09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-crabSizes.csv")
+cr10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-crabSizes.csv")
+cr11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-crabSizes.csv")
+cr12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-crabSizes.csv")
+cr13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-crabSizes.csv")
+cr14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-crabSizes.csv")
+crab <- rbind(cr09,cr10,cr11,cr12,cr13,cr14)
+
+by09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopBycatchByDay.csv")
+by10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopBycatchByDay.csv")
+by11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopBycatchByDay.csv")
+by12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopBycatchByDay.csv")
+by13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopBycatchByDay.csv")
+by14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopBycatchByDay.csv")
+by <- rbind(by09,by10,by11,by12,by13,by14)
+
+ages <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/scallop_ages_bcw.csv")
+ages <- ages[,2:47]
+ages14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014ScallopShellAgeData.csv")
+
+
+#adjust names to match other files
+names(ages14) <- c('id', 'trip_id', 'haul_id', 'aged_by','fishery', 'fishery_season','district','vessel','trip_or_packet','date','small_or_retained','haul','shell','annuli','letter_code','number_code','shell_height' ,'a1','a2','a3','a4','a5','a6','a7','a8','a9','a10' ,'a11', 'a12','a13','a14','a15','a16','a17','a18','a19','a20','a21','a22','a23','a24','a25','a26','a27')
+
+ages<- smartbind(ages,ages14)
+
+names(ages) <- c('id', 'Trip_ID', 'Haul_ID', 'aged_by','date_aged','Fishery', 'season','District','ADFG','packetnum','stat_area','Set_Date','Rtnd_Disc','haul','shell_num','annuli','code_let','code_num','Shell_Height','a1','a2','a3','a4','a5','a6','a7','a8','a9','a10' ,'a11', 'a12','a13','a14','a15','a16','a17','a18','a19','a20','a21','a22','a23','a24','a25','a26','a27')
+#adjust dates
+scallops$set_date <- as.Date(scallops$Set_Date, "%m-%d-%Y")
+scallops$year <- as.numeric(format(scallops$set_date, "%Y"))
+scallops$date <- yday(scallops$set_date)
+scallops$year <- ifelse(scallops$date<100, scallops$year-1, scallops$year)
+scallops$Year <- factor(scallops$year)
+scallops$vessel <- factor(scallops$ADFG)
+
+ages$set_date <- as.Date(ages$Set_Date, "%m/%d/%Y")
+ages$year <- as.numeric(format(ages$set_date, "%Y"))
+ages$date <- yday(ages$set_date)
+ages$year <- ifelse(ages$date<100, ages$year-1, ages$year)
+ages$Year <- factor(ages$year)
+
+by$set_date <- as.Date(by$Set_Date, "%m-%d-%Y")
+by$year <- as.numeric(format(by$set_date, "%Y"))
+by$date <- yday(by$set_date)
+by$year <- ifelse(by$date<100, by$year-1, by$year)
+by$Year <- factor(by$year)
+by$vessel <- factor(by$ADFG)
+
+#plotting smotting
+#year 2009-2014 colors and breaks
+values <- c('2014'='#542788bb','2013'='#998ec340','2012'='#d8daeb40',
+         '2011'='#fee0b640','2010'='#f1a34040','2009'='#b3580640') 
+breaks <- c('2014', '2013','2012','2011','2010','2009')
+@
+
+<<akmap, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=7, cache=TRUE,dev='png', dpi=300>>=
+# Map
+ak <- map_data('worldHires', c('USA:Alaska','Canada'))
+akmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(scallops$Set_Lon,na.rm=T)-.2,max(scallops$Set_Lon,na.rm=T)+.2),
+             ylim=c(min(scallops$Set_Lat,na.rm=T)-.2,max(scallops$Set_Lat,na.rm=T)+.2))
+
+#akmap1
+ak1 <- akmap + geom_point(data=scallops,aes(Set_Lon,Set_Lat,color=District),alpha=.35)+
+   scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
+                                'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
+                                ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
+                                ,'O'="#e31a1c", 'C'='#31a354'),  
+                       breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
+                                'Q','O','C'), name='District')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
+   )))+ theme(legend.key = element_blank())+
+   theme(plot.margin=unit(c(0,0,0,0),"mm"))
+
+#akmap2
+ak2 <- akmap + geom_point(data=subset(scallops, year==2014),aes(Set_Lon,Set_Lat,color=District),alpha=.35)+
+   scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
+                                'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
+                                ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
+                                ,'O'="#e31a1c"),  
+                       breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
+                                'Q','O'), name='District')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
+   )))+ theme(legend.key = element_blank())+
+   theme(plot.margin=unit(c(0,0,0,0),"mm"))
+grid.arrange(ak1,ak2,ncol=1)
+@
+
+
+<<cpue, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
+
+#remove data where dredge hours & area swept are zero
+scallops <- subset(scallops,Area_Swept.nm2.>0)
+
+#calculate round weight cpue by time and by area 
+scallops$rw.cpue.t <- scallops$Round_Weight/scallops$Dredge_Hrs
+scallops$rw.cpue.a <- scallops$Round_Weight/scallops$Area_Swept.nm2.
+
+#calculate meat weight cpue by time and by area
+scallops$mw.cpue.t <- scallops$Meat_Weight/scallops$Dredge_Hrs
+scallops$mw.cpue.a <- scallops$Meat_Weight/scallops$Area_Swept.nm2.
+
+#Subset scallop data to eliminate zeros in the cpue
+scallop <- subset(scallops,rw.cpue.t>0)
+
+#look for normality in cpue data
+#h1 <- ggplot(scallop,aes(rw.cpue.t))+geom_histogram()
+#h2 <- ggplot(scallop,aes(rw.cpue.a))+geom_histogram()+xlab('Round weight CPUE')
+#h3 <- ggplot(scallop,aes(mw.cpue.t))+geom_histogram()
+#h4 <- ggplot(scallop,aes(mw.cpue.a))+geom_histogram()+xlab('Meat weight CPUE')
+#grid.arrange(h2,h4,ncol=2)
+
+#adjust area cpue for log transformed data (Cambell et al 1996; Cambell 2004)
+rwt.adjust <- mean(scallop$rw.cpue.t)*.10
+rwa.adjust <- mean(scallop$rw.cpue.a)*.10
+mwt.adjust <- mean(scallop$mw.cpue.t)*.10
+mwa.adjust <- mean(scallop$mw.cpue.a)*.10
+
+#log transform cpue data
+scallop$rwt.cpue <- log(scallop$rw.cpue.t+rwt.adjust)
+scallop$rwa.cpue <- log(scallop$rw.cpue.a+rwa.adjust)
+scallop$mwt.cpue <- log(scallop$mw.cpue.t+mwt.adjust)
+scallop$mwa.cpue <- log(scallop$mw.cpue.t+mwa.adjust)
+
+#Subset data
+eki <- subset(scallop,District=='EKI')
+wki <- subset(scallop,District=='WKI')
+yak <- subset(scallop,District=='YAK' |District=='D16' )
+d16 <- subset(scallop,District=='D16')
+kne <- subset(scallop,District=='KNE' )
+ksh <- subset(scallop,District=='KSH' )
+ksw <- subset(scallop,District=='KSW' )
+m <- subset(scallop,District=='UB' )
+o <- subset(scallop,District=='O')
+q <- subset(scallop,District=='Q')
+c <- subset(scallop,District=='C' )
+
+#look for normality in cpue data
+h1 <- ggplot(scallop,aes(rwt.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
+#h2 <- ggplot(scallop,aes(rwa.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
+h3 <- ggplot(scallop,aes(mwt.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Meat weight CPUE')
+#h4 <- ggplot(scallop,aes(mwa.cpue))+geom_histogram(alpha=.5,color='black')+xlab('Round weight CPUE')
+grid.arrange(h1,h3,ncol=2)
+@
+
+<<areayak,child='Area_YAK.Rnw',eval=TRUE>>=
+@
+\section{Area K}
+<<areaksw,child='Area_KNE.Rnw',eval=TRUE>>=
+@
+
+<<areaksh,child='Area_KSH.Rnw',eval=TRUE>>=
+@
+
+<<areaksw,child='Area_KSW.Rnw',eval=TRUE>>=
+@
+
+<<aream,child='Area_M.Rnw', eval=TRUE>>=
+@
+
+<<areao,child='Area_O.Rnw', eval=TRUE>>=
+@
+
+<<areaq,child='Area_Q.Rnw', eval=TRUE>>=
+@
+\end{document}

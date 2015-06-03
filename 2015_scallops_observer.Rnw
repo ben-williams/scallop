@@ -11,7 +11,6 @@
    1255 W 8th Street\\
    Juneau, AK 99811-5526}
 \title{Scallop Observer Data Summary\\
-   \textbf{\textit{DRAFT}}}
 
 \begin{document}
    \maketitle
@@ -1024,12 +1023,12 @@ An estimated 51,593 Tanner Crab, a substatial increase from previous years, and 
 					& 		&  Catch 	& Dredge  & Number  &  		 \\ 
 			Year	& GHL 	&(lb meat)  & (hours) & hauls  & cpue$^a$\\ 
 			\hline	
-			1993/94& &	105,017	2,491&	1,684&	42\\
-         1994/95&	&	320,111	8,662	&5,204&	37\\
+			1993/94& &	105,017&	2,491&	1,684&	42\\
+         1994/95&	&	320,111&	8,662	&5,204&	37\\
          1995/96&	closed&	&	&	&	\\
-         1996/97&	&	219,305	3,466&	1,914&	63\\
-         1997/98&	&	258,346	5,488&	3,042&	47\\
-         1998/99&	&	179,870	4,076&	2,109&	44\\
+         1996/97&	&	219,305&	3,466&	1,914&	63\\
+         1997/98&	&	258,346&	5,488&	3,042&	47\\
+         1998/99&	&	179,870&	4,076&	2,109&	44\\
          1999/00&	180,000&	187,963&	4,295&	2,004&	44\\
          2000/01&	180,000&	180,087&	2,905&	1,403&	62\\
          2001/02&	180,000&	179,198&	3,398&	1,830&	53\\
@@ -1045,9 +1044,10 @@ An estimated 51,593 Tanner Crab, a substatial increase from previous years, and 
          2011/12&	135,000&	133,079&	2,437&	1,660&	55\\
          2012/13&	105,000&	106,051&	2,002&	1,347&	53\\
          2013/14&	105,000&	108,128&	2,541&	1,680&	43\\
-         2014/15&   65,000     & 65,938 & 1,617&   1,040&   41\\
+         2014/15&   65,000$^b$     & 65,938 & 1,617&   1,040&   41\\
 			\hline	
 			\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	
+         \multicolumn{3}{l}{$^b$Inseason reduction from 105,000}
 		\end{tabular} 
 	\end{table}
    
@@ -1145,7 +1145,7 @@ d$uci <- d$mwt.cpue+2*d$sd/sqrt(d$n)
 r2 <- ggplot(d, aes(year,mwt.cpue, fill=Bed))+geom_line(aes(color=Bed))+
    geom_ribbon(aes(ymin=lci, ymax=uci),alpha=.2)+
       scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
-   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')+coord_cartesian(ylim=c(3,4.5))
       guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('raw cpue')
 grid.arrange(r1,r2,ncol=2)
 @
@@ -1618,15 +1618,18 @@ ksw.by <- merge(by, ksw, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 
 
 a <- aggregate(Halibut_Count~year,data=subset(by, District=='KSW'), FUN=sum)
 a1 <- aggregate(Tanner_Count~year,data=subset(by, District=='KSW'), FUN=sum)
+a2 <- aggregate(King_Count~year,data=subset(by, District=='KSW'), FUN=sum)
 b <- aggregate(Sample_Hrs~year,data=subset(by, District=='KSW'), FUN=sum)
 c <- aggregate(Dredge_Hrs~year,data=ksw, FUN=sum)
 
 d <- merge(a,b, by='year')
 d <- merge(a1,d, by='year')
+d <- merge(a2,d, by='year')
 d <- merge(c,d, by='year')
 
 d$hal <- d$Halibut_Count/d$Sample_Hrs*d$Dredge_Hrs
 d$tan <- d$Tanner_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$king <- d$King_Count/d$Sample_Hrs*d$Dredge_Hrs
 
 d <- d[,c(1,6,7)]
 d<- melt(d, id.vars=c( 'year'))
@@ -2020,11 +2023,11 @@ An estimated 24,943 Tanner Crab, a substantial decrease from the previous year, 
 
 <<tablq, eval=FALSE, echo=FALSE>>=
 a <- aggregate(Dredge_Hrs~year, data=q, FUN=sum)
-b <- aggregate(Meat_Weight~year, data=q, FUN=sum)
+b <- aggregate(Round_Weight~year, data=q, FUN=sum)
 c <- merge(a,b, by='year')
 d <- aggregate(Haul_ID~year, data=q, FUN=length)
 d <- merge(c,d, by='year')
-d$cpue <- d$Meat_Weight/d$Dredge_Hrs
+d$cpue <- d$Round_Weight/d$Dredge_Hrs
 d
 @
 
@@ -2033,7 +2036,7 @@ d
    \caption{Area Q catch summary for the 2014/15 season.}
    
 	\label{table:q1}
-	\begin{tabular}{lcccccc}
+	\begin{tabular}{lrrrrcc}
 		& 		&  Catch 	& Dredge  	& Number  	&  		 \\ 
 		Year	& GHL 	&(lb meat)  & (hours) 	& hauls  	& cpue$^a$\\ 
 		\hline	
@@ -2058,12 +2061,13 @@ d
 		2011/12	&	50,000&		50,275&		984	&	626&	51\\
 		2012/13	&	50,000&		50,045&		943	&	695&	53\\
 		2013/14	&	50,000&		49,989&		1,086&		719&	46\\
-		2014/15 & 50,000 & 12445 & 525 & 330 & 24\\
+		2014/15 & 50,000 & 12,445$^b$ & 525 & 330 & 24\\
 		
 		
 		\hline	
 		\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	\\
-         \end{tabular} 
+   	\multicolumn{3}{l}{$^b$reduced due to "weak meat"}	\\
+      \end{tabular} 
 \end{table}
 <<q, fig.pos="H", fig.cap="Maps of Area Q fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE,dev='png', dpi=300>>=
 #######################
@@ -2404,9 +2408,9 @@ d
 		2009/10&	closed&	&&		&	\\
 		2010/11&	closed&	&&		&	\\
 		2011/12&	closed&	&&		&	\\
-		2012/13&	15,000b&	15,040&	255&	248&	59\\
-		2013/14&	15,000b&	15,155&	247&	152&	61\\
-		2014-15&	15,000	&15,000		&	285			&	211			&	53\\
+		2012/13&	15,000$^b$&	15,040&	255&	248&	59\\
+		2013/14&	15,000$^b$&	15,155&	247&	152&	61\\
+		2014/15&	15,000$^b$	&15,000		&	285			&	211			&	53\\
 		
 		\hline	
 		\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	\\
