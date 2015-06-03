@@ -1,25 +1,4 @@
-\documentclass{article}
-\usepackage{color}
-\usepackage[hidelinks]{hyperref}
-\usepackage{float}
-\usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
-\usepackage[]{authblk}
-\pretolerance=99999 
-\author{Prepared by:\\Ben Williams\\
-   \href{mailto:ben.williams@alaska.gov}{ben.williams@alaska.gov}}
-\affil{Alaska Department of Fish \& Game\\
-   1255 W 8th Street\\
-   Juneau, AK 99811-5526}
-\title{Scallop Observer Data Summary\\
-   \textbf{\textit{DRAFT}}}
-
-\begin{document}
-   \maketitle
-   \tableofcontents
-\listoftables
-\listoffigures
-
-<<load,echo=FALSE,message=FALSE,warning=FALSE>>=
+<<loadq,echo=FALSE,message=FALSE,warning=FALSE>>=
 #load inputs
 library(lubridate)
 library(extrafont);library(ggplot2)
@@ -35,7 +14,7 @@ library(gridExtra)
 library(gtools)
 library(RColorBrewer)
 library(plyr)
-library(reshape2)
+library(xtable)
 
 #import data To update with a new year simply add a new file and bind it with the others
 scallops09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopCatchByHaul.csv")
@@ -109,44 +88,12 @@ values <- c('2014'='#542788bb','2013'='#998ec340','2012'='#d8daeb40',
 breaks <- c('2014', '2013','2012','2011','2010','2009')
 @
 
-<<akmap, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=7, cache=TRUE,dev='png', dpi=300>>=
+<<akmapq, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=7, cache=TRUE,dev='png', dpi=300>>=
 # Map
 ak <- map_data('worldHires', c('USA:Alaska','Canada'))
-#akmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group),fill=8,color='black') +
-#   theme(panel.background=element_rect(fill='white')) + 
-#   xlab(expression(paste(Longitude^o,~'W'))) +
-#   ylab(expression(paste(Latitude^o,~'W'))) + 
-#   coord_map(xlim=c(min(scallops$Set_Lon,na.rm=T)-.2,max(scallops$Set_Lon,na.rm=T)+.2),
-#             ylim=c(min(scallops$Set_Lat,na.rm=T)-.2,max(scallops$Set_Lat,na.rm=T)+.2))
-
-#akmap1
-#ak1 <- akmap + geom_point(data=scallops,aes(Set_Lon,Set_Lat,color=District),alpha=.35)+
-#   scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
-#                                'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
-#                                ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
-#                                ,'O'="#e31a1c", 'C'='#31a354'),  
-#                       breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
-#                                'Q','O','C'), name='District')+
-#   guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
-#   )))+ theme(legend.key = element_blank())+
-#   theme(plot.margin=unit(c(0,0,0,0),"mm"))
-
-#akmap2
-#ak2 <- akmap + geom_point(data=subset(scallops, year==2014),aes(Set_Lon,Set_Lat,color=District),alpha=.35)+
-#   scale_colour_manual(values=c('D16'='#662506','YAK'='#cc4c02','EKI'='#fe9929',
-#                                'WKI'='#081d58','KNE'='#225ea8','KSH'='#41b6c4','KSW'
-#                                ='#54278f','KSEM'='#807dba','UB'='#045a8d', 'Q'="#3690c0"
-#                                ,'O'="#e31a1c"),  
-#                       breaks=c('D16', 'YAK','EKI','WKI','KNE','KSH','KSW','KSEM','UB',
-#                                'Q','O'), name='District')+
-#   guides(colour = guide_legend(override.aes = list(alpha = 1, size=3
-#   )))+ theme(legend.key = element_blank())+
-#   theme(plot.margin=unit(c(0,0,0,0),"mm"))
-#grid.arrange(ak1,ak2,ncol=1)
 @
 
-
-<<cpue, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
+<<cpueq, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
 
 #remove data where dredge hours & area swept are zero
 scallops <- subset(scallops,Area_Swept.nm2.>0)
@@ -193,7 +140,22 @@ m <- subset(scallop,District=='UB' )
 o <- subset(scallop,District=='O')
 q <- subset(scallop,District=='Q')
 c <- subset(scallop,District=='C' )
+
+
+#######################
+#Q
+#######################
+#excluded samples outside of the main bed
+q <- subset(q,Set_Lon>-166)
+#remove incomplete data
+q <- q[complete.cases(q),]
+
+fit <- gam(mwt.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+vessel-1, data=q, gamma=1.4)
+#plot(kne$Bed,resid(fit))
+q$fit <- fitted(fit)
 @
+
+
 \section{Bering Sea Area Q}
 
 \subsubsection{Fishery performance}
@@ -255,14 +217,53 @@ d
 		\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	\\
          \end{tabular} 
 \end{table}
-<<q, fig.pos="H", fig.cap="Maps of Area Q fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE,dev='png', dpi=300>>=
-#######################
-#Q
-#######################
-#excluded samples outside of the main bed
-q <- subset(q,Set_Lon>-166)
-#remove incomplete data
-q <- q[complete.cases(q),]
+
+<<q_xtbl, results='asis', error=FALSE, warning=FALSE,message=FALSE, echo=FALSE>>=
+
+#A cheat for making a table with multirow column names
+a <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=q, FUN=median)
+names(a) <- c('year', 'median')
+
+b <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=q, FUN=mean)
+names(b) <- c('year', 'mean')
+c <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=q, FUN=sd)
+names(c) <- c('year', 'sd')
+
+d <- aggregate((exp(fit)-mwt.adjust)~year, data=q, FUN=median)
+names(d) <- c('year', 'std median')
+e <- aggregate((exp(fit)-mwt.adjust)~year, data=q, FUN=mean)
+names(e) <- c('year', 'std mean')
+f <- aggregate((exp(fit)-mwt.adjust)~year, data=q, FUN=sd)
+names(f) <- c('year', 'std sd')
+g <- merge(a,b, by='year')
+g <- merge(g,c, by='year')
+g <- merge(g,d, by='year')
+g <- merge(g,e, by='year')
+g <- merge(g,f, by='year')
+
+print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
+      include.colnames=FALSE, include.rownames = FALSE, floating=FALSE,type='latex',
+      hline.after=NULL, file='goutq.tex')
+@
+
+\begin{table}[H]
+   \centering
+   \caption{Area Q catch summary for the 2009/10-2014/15 season for raw and standardized data. Data for this table are from the Kodiak Wiki*}
+	\label{table:q2}
+   \vspace{1.5ex}
+\begin{tabular}{lrrcrrc}
+   \hline
+ &\multicolumn{3}{c}{Raw cpue} & \multicolumn{3}{c}{Standardized cpue}  \\ 
+	 Year	& median&	mean& sd	& median&	mean&	sd\\
+\hline\\[-1.5ex]
+
+\input{goutq.tex}
+   \hline
+    \multicolumn{7}{l}{*Data from Wiki are different from older versions.}
+\end{tabular}
+   \end{table}
+<<qmap, fig.pos="H", fig.cap="Maps of Area Q fishing locations by fishing year.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE,dev='png', dpi=300>>=
+
 
 #map of sample locations
 
@@ -298,9 +299,7 @@ grid.arrange(m1,m2,ncol=2)
 <<qfit,fig.pos="H", fig.cap="Density and number of tows by bed and year for Area Q standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 #Model the CPUE
 
-fit <- gam(mwt.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+vessel-1, data=q, gamma=1.4)
-#plot(kne$Bed,resid(fit))
-q$fit <- fitted(fit)
+
 f1 <- ggplot(q, aes(fit,fill=Year,color=Year))+geom_density()+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
@@ -531,5 +530,60 @@ ggplot(d, aes(year, disc))+geom_line()+geom_point(size=3)+ylim(0, max(d$disc))+y
     
 @
 
+\subsection{Disease}
+Due to concerns over ``weak meats" and discards this is a cursory examination of available data. The primary question is of fishing mortality vs retention mortality, though it is unlikely that this can be confirmed with these available data.
 
-\end{document}
+The number of clappers has increase annually (Figure~\ref{fig:dis}a) will similar results when the number of clappers is scaled to the dredge hours sampled (Figure~\ref{fig:dis}b).
+<<dis,dpi=300, dev='png', fig.pos="H",echo=FALSE, fig.cap='Total clapper count has increased by year (a), and it has increased when scaled by the number of dredge hours sampled (b).', fig.height=4>>=
+qsamp <- subset(q.by, Sample_Hrs>0)
+q1 <- ggplot(data=qsamp, aes(year, Clapper_Count, color=Year))+geom_boxplot()+ylab("Clapper count")
+q2 <- ggplot(data=qsamp, aes(year, Clapper_Count/Sample_Hrs, color=Year))+geom_boxplot()+ylab("Clapper counts / Sample hour")
+grid.arrange(q1,q2,ncol=2)
+@
+
+However there is a strong gradient in clapper counts by location in Area Q (Figure~\ref{fig:dis1}a) that is mimicked, in part by dredging locations by year (Figure~\ref{fig:dis1}b)
+<<dis1, ,fig.height=4, cache=TRUE, fig.pos="H",dpi=300, dev='png', fig.cap='Clapper count by location (a) and sampled catch location by year (b) for Area Q.',echo=FALSE>>=
+c1 <- ggplot()+geom_point(data=qsamp, aes(Set_Lon, Set_Lat, color=Clapper_Count/Sample_Hrs))+scale_color_gradientn(colours=rainbow(5),name="Clapper count/\nSample hours")
+
+c2 <- ggplot()+geom_point(data=qsamp, aes(Set_Lon, Set_Lat, color=year), alpha=.4)+scale_color_gradientn(colours=rainbow(6))
+grid.arrange(c1,c2,ncol=2)
+@
+
+Depth is also highly stratified (i.e. it mimics the year effect).
+<<dis2, fig.height=4, cache=TRUE, fig.pos="H",dpi=300, dev='png', fig.cap='Clapper sampled depth (ftm) by location (a), and density of sampled depths (b).',echo=FALSE>>=
+d1 <- ggplot()+geom_point(data=qsamp, aes(Set_Lon, Set_Lat, color=Depth))+scale_color_gradientn(colours=rainbow(5),name="Depth")
+
+d2 <- ggplot(data=qsamp, aes(Depth, fill=Year))+geom_density(alpha=.3)
+grid.arrange(d1,d2,ncol=2)
+@
+
+Most of these analyses are not very telling, however an evaluation of meat weight divided by the total discard weight does not  show much change through time (Figure~\ref{fig:dis3}a) while meat weight divided by round weight shows a substantial decline in 2014 (Figure~\ref{fig:dis3}b).
+<<dis3, fig.height=4, cache=TRUE, fig.pos="H",dpi=300, dev='png', fig.cap='Meat weight divided by total discard weight.',echo=FALSE>>=
+m1 <- ggplot(data=qsamp, aes(Year,Meat_Weight/(Discard_Weight+Broken_Weight+Rem_Disc_Wt), color=Year))+geom_boxplot()+
+coord_cartesian(ylim=c(0,3))+ylab('Meat weight / total discard weight')
+
+m2 <- ggplot(data=qsamp, aes(Year,Meat_Weight/Round_Weight, color=Year))+geom_boxplot()
+grid.arrange(m1,m2,ncol=2)
+@
+
+<<dis4, echo=FALSE,fig.pos="H",fig.height=4,cache=TRUE,dpi=300, dev='png', fig.cap='Boxplots of retained baskets by year.'>>=
+a <- aggregate(Discard_Weight~year,data=qsamp, FUN=sum)
+b <- aggregate(Broken_Weight~year,data=qsamp, FUN=sum)
+c <- aggregate(Rem_Disc_Wt~year,data=qsamp, FUN=sum)
+d <- aggregate(Sample_Hrs~year,data=qsamp, FUN=sum)
+
+e <- merge(a, b, by='year')
+e <- merge(c, e, by='year')
+e <- merge(d, e, by='year')
+
+e$sum <- e$Discard_Weight
+e$scale <- e$sum/e$Sample_Hrs
+
+#ggplot(e,aes(year, sum))+geom_point()
+#qsamp$discs <- qsamp$,qsamp$Broken_Weight,qsamp$Rem_Disc_Wt)
+#ggplot(data=qsamp, aes(Year,discs, fill=Year))+geom_point()+
+#ylab('Total discard weight')
+
+ggplot(data=qsamp, aes(year, Rtnd_Basket, color=Year))+geom_boxplot()+ylab('Number of retained baskets')
+@
+

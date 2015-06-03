@@ -1,0 +1,540 @@
+<<loadksh,echo=FALSE,message=FALSE,warning=FALSE>>=
+#load inputs
+library(lubridate)
+library(extrafont);library(ggplot2)
+#font_import() only do this one time - it takes a while
+loadfonts(device="win")
+windowsFonts(Times=windowsFont("TT Times New Roman"))
+theme_set(theme_bw(base_size=12,base_family='Times New Roman')+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()))
+library(mgcv)
+library(maps)
+library(mapdata)
+library(mapproj)
+library(gridExtra)
+library(gtools)
+library(RColorBrewer)
+library(plyr)
+library(xtable)
+library(reshape2)
+
+#import data To update with a new year simply add a new file and bind it with the others
+scallops09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopCatchByHaul.csv")
+scallops10 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopCatchByHaul.csv")
+scallops11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopCatchByHaul.csv")
+scallops12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopCatchByHaul.csv")
+scallops13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopCatchByHaul.csv")
+scallops14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopCatchByHaul.csv")
+scallops <- rbind(scallops09,scallops10, scallops11, scallops12,scallops13, scallops14)
+
+sh09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopShellHeights.csv")
+sh10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopShellHeights.csv")
+sh11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopShellHeights.csv")
+sh12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopShellHeights.csv")
+sh13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopShellHeights.csv")
+sh14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopShellHeights.csv")
+sh <- rbind(sh09,sh10,sh11,sh12,sh13,sh14)
+
+cr09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-crabSizes.csv")
+cr10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-crabSizes.csv")
+cr11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-crabSizes.csv")
+cr12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-crabSizes.csv")
+cr13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-crabSizes.csv")
+cr14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-crabSizes.csv")
+crab <- rbind(cr09,cr10,cr11,cr12,cr13,cr14)
+
+by09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopBycatchByDay.csv")
+by10 <-  read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopBycatchByDay.csv")
+by11 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2011-scallopBycatchByDay.csv")
+by12 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2012-scallopBycatchByDay.csv")
+by13 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2013-scallopBycatchByDay.csv")
+by14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014-scallopBycatchByDay.csv")
+by <- rbind(by09,by10,by11,by12,by13,by14)
+
+ages <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/scallop_ages_bcw.csv")
+ages <- ages[,2:47]
+ages14 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2014ScallopShellAgeData.csv")
+
+
+#adjust names to match other files
+names(ages14) <- c('id', 'trip_id', 'haul_id', 'aged_by','fishery', 'fishery_season','district','vessel','trip_or_packet','date','small_or_retained','haul','shell','annuli','letter_code','number_code','shell_height' ,'a1','a2','a3','a4','a5','a6','a7','a8','a9','a10' ,'a11', 'a12','a13','a14','a15','a16','a17','a18','a19','a20','a21','a22','a23','a24','a25','a26','a27')
+
+ages<- smartbind(ages,ages14)
+
+names(ages) <- c('id', 'Trip_ID', 'Haul_ID', 'aged_by','date_aged','Fishery', 'season','District','ADFG','packetnum','stat_area','Set_Date','Rtnd_Disc','haul','shell_num','annuli','code_let','code_num','Shell_Height','a1','a2','a3','a4','a5','a6','a7','a8','a9','a10' ,'a11', 'a12','a13','a14','a15','a16','a17','a18','a19','a20','a21','a22','a23','a24','a25','a26','a27')
+#adjust dates
+scallops$set_date <- as.Date(scallops$Set_Date, "%m-%d-%Y")
+scallops$year <- as.numeric(format(scallops$set_date, "%Y"))
+scallops$date <- yday(scallops$set_date)
+scallops$year <- ifelse(scallops$date<100, scallops$year-1, scallops$year)
+scallops$Year <- factor(scallops$year)
+scallops$vessel <- factor(scallops$ADFG)
+
+ages$set_date <- as.Date(ages$Set_Date, "%m/%d/%Y")
+ages$year <- as.numeric(format(ages$set_date, "%Y"))
+ages$date <- yday(ages$set_date)
+ages$year <- ifelse(ages$date<100, ages$year-1, ages$year)
+ages$Year <- factor(ages$year)
+
+by$set_date <- as.Date(by$Set_Date, "%m-%d-%Y")
+by$year <- as.numeric(format(by$set_date, "%Y"))
+by$date <- yday(by$set_date)
+by$year <- ifelse(by$date<100, by$year-1, by$year)
+by$Year <- factor(by$year)
+by$vessel <- factor(by$ADFG)
+
+#plotting smotting
+#year 2009-2014 colors and breaks
+values <- c('2014'='#542788bb','2013'='#998ec340','2012'='#d8daeb40',
+         '2011'='#fee0b640','2010'='#f1a34040','2009'='#b3580640') 
+breaks <- c('2014', '2013','2012','2011','2010','2009')
+@
+
+<<akmapksh, fig.pos="H", fig.cap="Map of all scallop dredge hauls. Top pane shows fishing locations from the 2009/10-2014/15 fishing season. Bottom pane shows fishing locations from the 2014/15 fishing season.",echo=FALSE, warning=FALSE ,fig.height=7, cache=TRUE,dev='png', dpi=300>>=
+# Map
+ak <- map_data('worldHires', c('USA:Alaska','Canada'))
+@
+
+<<cpueksh, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
+
+#remove data where dredge hours & area swept are zero
+scallops <- subset(scallops,Area_Swept.nm2.>0)
+
+#calculate round weight cpue by time and by area 
+scallops$rw.cpue.t <- scallops$Round_Weight/scallops$Dredge_Hrs
+scallops$rw.cpue.a <- scallops$Round_Weight/scallops$Area_Swept.nm2.
+
+#calculate meat weight cpue by time and by area
+scallops$mw.cpue.t <- scallops$Meat_Weight/scallops$Dredge_Hrs
+scallops$mw.cpue.a <- scallops$Meat_Weight/scallops$Area_Swept.nm2.
+
+#Subset scallop data to eliminate zeros in the cpue
+scallop <- subset(scallops,rw.cpue.t>0)
+
+#look for normality in cpue data
+#h1 <- ggplot(scallop,aes(rw.cpue.t))+geom_histogram()
+#h2 <- ggplot(scallop,aes(rw.cpue.a))+geom_histogram()+xlab('Round weight CPUE')
+#h3 <- ggplot(scallop,aes(mw.cpue.t))+geom_histogram()
+#h4 <- ggplot(scallop,aes(mw.cpue.a))+geom_histogram()+xlab('Meat weight CPUE')
+#grid.arrange(h2,h4,ncol=2)
+
+#adjust area cpue for log transformed data (Cambell et al 1996; Cambell 2004)
+rwt.adjust <- mean(scallop$rw.cpue.t)*.10
+rwa.adjust <- mean(scallop$rw.cpue.a)*.10
+mwt.adjust <- mean(scallop$mw.cpue.t)*.10
+mwa.adjust <- mean(scallop$mw.cpue.a)*.10
+
+#log transform cpue data
+scallop$rwt.cpue <- log(scallop$rw.cpue.t+rwt.adjust)
+scallop$rwa.cpue <- log(scallop$rw.cpue.a+rwa.adjust)
+scallop$mwt.cpue <- log(scallop$mw.cpue.t+mwt.adjust)
+scallop$mwa.cpue <- log(scallop$mw.cpue.t+mwa.adjust)
+
+#Subset data
+eki <- subset(scallop,District=='EKI')
+wki <- subset(scallop,District=='WKI')
+yak <- subset(scallop,District=='YAK' |District=='D16' )
+d16 <- subset(scallop,District=='D16')
+kne <- subset(scallop,District=='KNE' )
+ksh <- subset(scallop,District=='KSH' )
+ksw <- subset(scallop,District=='KSW' )
+m <- subset(scallop,District=='UB' )
+o <- subset(scallop,District=='O')
+q <- subset(scallop,District=='Q')
+c <- subset(scallop,District=='C' )
+@
+
+\subsection{Kodiak Shelikof District}
+\subsubsection{Fishery performance}
+<<ksh, echo=FALSE, warning=FALSE >>=
+#######################
+#KSH
+#######################
+
+#split by bed
+ksh$bed = NA
+ksh<-within(ksh,bed[Set_Lat > 58.35]<-1)
+ksh<-within(ksh,bed[Set_Lat < 58.35]<-'2-7')
+
+ksh$Bed <- factor(ksh$bed)
+
+bvalues <- c('1'='#e41a1c','2-7'='#377eb8') 
+bbreaks <- c('1', '2-7')
+
+#this plot was used to determine breaks in beds
+#ggplot(ksh,aes(Set_Lon, Set_Lat, color=Bed))+geom_point()
+#remove incomplete data
+ksh <- ksh[complete.cases(ksh),]
+
+#Model the CPUE
+
+fit <- gam(mwt.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+s(Bed, bs='re')+vessel-1, data=ksh, gamma=1.4)
+
+#plot(ksh$Bed,resid(fit))
+ksh$fit <- fitted(fit)
+@
+
+The 2014/15 Kodiak Shelikof District scallop fishery opened on July 1. 2014 with a GHL of 105,000 lb scallop meat, due to poor performance the GHL was reduced inseason to 65,000. Three vessels particpated in the fishery (Figure~\ref{fig:kshvessel}) harvesting 65,938 lb scallop meat with a cpue of 41 lb meat/dredge hour (Table~\ref{table:ksh1}). This high cpue is most similar to levels observed in 2000-2002. 
+
+
+\subsubsection{Size and age structure of catch}
+
+Shell heights were comparable to those of the 2013/14 fishery, the discard group was sizeable and close in size to being recruited to the fishery.
+\subsubsection{Scallop discards and crab/halibut bycatch}
+
+An estimated 51,593 Tanner Crab, a substatial increase from previous years, and 200 Pacific Halibut were incidentically caught (Figure~\ref{fig:kshcrab}). Estimated scallop discards for the 2014/15 season were 42,994 lb (7\% of landed round weight).
+
+   \begin{table}[H]
+   	\centering
+		\caption{Kodiak Shelikof District catch summary for the 2014/15 season. Data for this table are from previous observer data summaries.}
+		
+		\label{table:ksh1}
+		\begin{tabular}{lcccccc}
+					& 		&  Catch 	& Dredge  & Number  &  		 \\ 
+			Year	& GHL 	&(lb meat)  & (hours) & hauls  & cpue$^a$\\ 
+			\hline	
+			1993/94& &	105,017&	2,491&	1,684&	42\\
+         1994/95&	&	320,111&	8,662	&5,204&	37\\
+         1995/96&	closed&	&	&	&	\\
+         1996/97&	&	219,305&	3,466&	1,914&	63\\
+         1997/98&	&	258,346&	5,488&	3,042&	47\\
+         1998/99&	&	179,870&	4,076&	2,109&	44\\
+         1999/00&	180,000&	187,963&	4,295&	2,004&	44\\
+         2000/01&	180,000&	180,087&	2,905&	1,403&	62\\
+         2001/02&	180,000&	179,198&	3,398&	1,830&	53\\
+         2002/03&	180,000&	179,957&	3,799&	2,071&	47\\
+         2003/04&	180,000&	180,011&	3,258&	1,722&	64\\
+         2004/05&	180,000&	174,622&	3,467&	1,793&	50\\
+         2005/06&	160,000&	159,879&	2,278&	1,217&	70\\
+         2006/07&	160,000&	161,263&	2,181&	1,280&	74\\
+         2007/08&	170,000&	170,224&	2,937&	1,736&	58\\
+         2008/09&	170,000&	12,660&	262&	179&	48\\
+         2009/10&	170,000&	169,973&	3,496&	1,921&	49\\
+         2010/11&	170,000&	171,065&	3,507&	2,218&	49\\
+         2011/12&	135,000&	133,079&	2,437&	1,660&	55\\
+         2012/13&	105,000&	106,051&	2,002&	1,347&	53\\
+         2013/14&	105,000&	108,128&	2,541&	1,680&	43\\
+         2014/15&   65,000$^b$     & 65,938 & 1,617&   1,040&   41\\
+			\hline	
+			\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	\\
+         \multicolumn{3}{l}{$^b$Inseason reduction from 105,000}
+		\end{tabular} 
+	\end{table}
+<<ksh_xtbl, results='asis', error=FALSE, warning=FALSE,message=FALSE, echo=FALSE>>=
+
+#A cheat for making a table with multirow column names
+a <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=ksh, FUN=median)
+names(a) <- c('year', 'median')
+
+b <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=ksh, FUN=mean)
+names(b) <- c('year', 'mean')
+c <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=ksh, FUN=sd)
+names(c) <- c('year', 'sd')
+
+d <- aggregate((exp(fit)-mwt.adjust)~year, data=ksh, FUN=median)
+names(d) <- c('year', 'std median')
+e <- aggregate((exp(fit)-mwt.adjust)~year, data=ksh, FUN=mean)
+names(e) <- c('year', 'std mean')
+f <- aggregate((exp(fit)-mwt.adjust)~year, data=ksh, FUN=sd)
+names(f) <- c('year', 'std sd')
+g <- merge(a,b, by='year')
+g <- merge(g,c, by='year')
+g <- merge(g,d, by='year')
+g <- merge(g,e, by='year')
+g <- merge(g,f, by='year')
+
+print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
+      include.colnames=FALSE, include.rownames = FALSE, floating=FALSE,type='latex',
+      hline.after=NULL, file='goutksh.tex')
+@
+
+\begin{table}[H]
+   \centering
+	\caption{Kodiak Shelikof District catch summary for the 2009/10-2014/15 season for raw and standardized data. Data for this table are from the Kodiak Wiki*}
+	\label{table:ksh2}
+   \vspace{1.5ex}
+\begin{tabular}{lrrcrrc}
+   \hline
+ &\multicolumn{3}{c}{Raw cpue} & \multicolumn{3}{c}{Standardized cpue}  \\ 
+	 Year	& median&	mean& sd	& median&	mean&	sd\\
+\hline\\[-1.5ex]
+
+\input{goutksh.tex}
+   \hline
+    \multicolumn{7}{l}{*Data from Wiki are different from older versions.}
+\end{tabular}
+   \end{table}
+
+   
+<<kshmap, fig.pos="H", fig.cap="Maps of District KSH fishing locations by fishing year. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8, cache=TRUE,dev='png', dpi=300>>=
+#map of sample locations
+
+kshmap <- ggplot()+geom_polygon(data=ak,aes(long,lat,group=group, color=Bed),fill=8,color='black') +
+   theme(panel.background=element_rect(fill='white')) + 
+   xlab(expression(paste(Longitude^o,~'W'))) +
+   ylab(expression(paste(Latitude^o,~'W'))) + 
+   coord_map(xlim=c(min(ksh$Set_Lon,na.rm=T)-.2,max(ksh$Set_Lon,na.rm=T)+.2),
+             ylim=c(min(ksh$Set_Lat,na.rm=T)-.2,max(ksh$Set_Lat,na.rm=T)+.2))
+
+kshmap+geom_point(data=ksh, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wrap(~ Year)+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+      theme(legend.key = element_blank(),legend.position = c(0.1, 0.9),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')
+@
+
+<<kshcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KSH cpue. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300>>=
+#RAW density and number of tows
+m1 <- ggplot(ksh, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.1, 0.25),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+m2 <- ggplot(ksh, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(m1,m2,ncol=2)
+@
+
+<<kshfit, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KSH standardized cpue. Note the different scales for the y-axis. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE,message=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300>>=
+
+#ggplot(ksh, aes(year, mwa.cpue, color=Bed, fill=Bed))+stat_summary(fun.y=mean, geom='smooth')
+f1 <- ggplot(ksh, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.25),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+f2 <- ggplot(ksh, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(f1,f2,ncol=2)
+@
+
+<<kshfit2, fig.pos="H", fig.cap="Standardized and raw CPUE by year and bed for District KSH. Standardized cpue have bootstrap estimated 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=3.9, cache=TRUE, dev='png',message=FALSE, dpi=300>>=
+r1 <- ggplot(ksh, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
+   scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   theme(legend.key = element_blank(),legend.position = c(0.75, 0.1),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('standardized cpue')
+
+a <- aggregate(mwt.cpue~year+Bed,data=ksh, FUN=mean)
+b <- aggregate(mwt.cpue~year+Bed,data=ksh, FUN=sd)
+names(b) <- c('year','Bed', 'sd')
+c <- aggregate(mwt.cpue~year+Bed,data=ksh, FUN=length)
+names(c) <- c('year','Bed', 'n')
+d <- merge(a,b, by=c('year','Bed'))
+d <- merge(c,d, by=c('year','Bed'))
+d$lci <- d$mwt.cpue-2*d$sd/sqrt(d$n)
+d$uci <- d$mwt.cpue+2*d$sd/sqrt(d$n)
+r2 <- ggplot(d, aes(year,mwt.cpue, fill=Bed))+geom_line(aes(color=Bed))+
+   geom_ribbon(aes(ymin=lci, ymax=uci),alpha=.2)+
+      scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
+   scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')+coord_cartesian(ylim=c(3,4.5))+
+      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('raw cpue')
+grid.arrange(r1,r2,ncol=2)
+@
+
+
+<<kshvessel, fig.pos="H", fig.cap="Annual vessel effect from model fit, District KSH.",echo=FALSE, warning=FALSE ,fig.height=3.9, cache=TRUE,dev='png',dpi=300>>=
+#Model the CPUE
+#ggplot(kne, aes(Year,fit, fill=Bed))+geom_boxplot()
+#ggplot(kne, aes(vessel,fit, fill=Bed))+geom_boxplot()
+ggplot(ksh, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)
+@
+
+
+<<kshsh, fig.pos="H", fig.cap="Shell heights by bed and year for District KSH. Note the different scales for the y-axis. The left pane shows the shell height distribution for all of the hauls, the right pane shows the number of shell heights measured.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300>>=
+#Shell heights
+ksh.sh <- merge(ksh,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#SH by year
+s1 <- ggplot(ksh.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.18, 0.15),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+                                           
+s2 <- ggplot(ksh.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values,breaks=breaks, name='Year')+
+   scale_color_manual(values=values,breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<kshsh14, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for District KSH in 2014. Note the different scales for the y-axis. The left pane shows the shell height distribution for all of the hauls, the right pane shows the number of shell heights measured.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300>>=
+#SH by bed
+s1 <- ggplot(subset(ksh.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+ 
+   theme(legend.key = element_blank(),legend.position = c(0.18, 0.75),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+s2 <- ggplot(subset(ksh.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Bed~., scales='free_y')+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+
+<<kshsh3, fig.pos="H", fig.cap="Shell heights by year, all beds combined, for District KSH. The left pane shows the shell height distribution for all of the hauls, the right pane shows the number of shell heights measured.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+
+#SH by year
+s1 <- ggplot(ksh.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+ 
+   theme(legend.key = element_blank(),legend.position = c(0.2, 0.25),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+s2 <- ggplot(ksh.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Year~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+
+<<kshage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KSH. Note the different scales for the y-axis. The left pane shows the shell age distribution for all of the hauls, the right pane shows the number of shells used for aging.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300>>=                               
+ #Ages
+                                           
+ksh.age <- merge(ksh, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
+                                           
+                                           
+#age by year
+a1 <- ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.75, 0.15),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+a2 <- ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+   scale_fill_manual(values=values, breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(a1,a2,ncol=2)
+@                                 
+
+<<kshage2, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KNE. The left pane shows the shell age distribution for all of the hauls, the right pane shows the number of shells used for aging.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
+ #Ages
+                                           
+                        
+#age by year
+a1 <- ggplot(ksh.age, aes(annuli,fill=Rtnd_Disc))+geom_density(alpha=.3)+facet_grid(Year~., scale='free_y')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.75, 0.08),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+a2 <- ggplot(ksh.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white')+facet_grid(Year~.)+
+      guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(a1,a2,ncol=2)
+@   
+
+<<kshagesh, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for District KSH. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
+
+
+#kshmap+geom_point(data=subset(ksh.age, year<2012),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+#   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+#   scale_colour_gradientn(colours =rainbow(5))
+
+#kshmap+geom_point(data=subset(ksh.age, year>2011),aes(Set_Lon,Set_Lat,color=annuli,width=1.2),alpha=.2) +
+#   guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)+
+#   scale_colour_gradientn(colours=rainbow(5))
+
+#ggplot(ksh.age, aes(annuli))+geom_density(alpha=.2,fill=4)+facet_grid(Year~.)
+#ggplot(ksh.age, aes(annuli))+geom_histogram(alpha=.2,color='black', fill=4)+facet_grid(Year~.)
+
+#difference between shell height samples and shell height ages
+as1 <- ggplot(ksh.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=ksh.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+as2 <- ggplot(ksh.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=ksh.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)+guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.23),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')
+grid.arrange(as1,as2,ncol=2)
+@
+
+<<kshagex,echo=FALSE,message=FALSE,warning=FALSE, dev='png', dpi=300>>=
+#Extras
+#ggplot(ksh.age, aes(annuli, Meat_Weight))+geom_point(alpha=.2,color='black')+facet_grid(Year~.)+
+#   stat_smooth()+coord_cartesian(xlim=c(0,20))
+#ggplot(ksh.age, aes(annuli, Meat_Weight, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+
+#   stat_smooth()+coord_cartesian(xlim=c(0,20))
+
+
+#ggplot(ksh.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+#ggplot(ksh.age, aes(Depth,annuli, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+#ggplot(ksh.sh, aes(Depth,Shell_Height, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+#ggplot(ksh.sh, aes(Depth,Shell_Height, group=Bed,color=Bed,fill=Bed))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+
+
+#ggplot(ksh.age, aes(Depth,annuli, group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth()
+#ggplot(ksh.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
+@
+
+
+<<kshcrab, fig.pos="H", fig.cap="Estimated Tanner Crab and Pacific Halibut catch for District KSH.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
+ksh.by <- merge(by, ksh, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'date', 'Year', 'vessel'))
+
+a <- aggregate(Halibut_Count~year,data=subset(by, District=='KSH'), FUN=sum)
+a1 <- aggregate(Tanner_Count~year,data=subset(by, District=='KSH'), FUN=sum)
+b <- aggregate(Sample_Hrs~year,data=subset(by, District=='KSH'), FUN=sum)
+c <- aggregate(Dredge_Hrs~year,data=ksh, FUN=sum)
+
+d <- merge(a,b, by='year')
+d <- merge(a1,d, by='year')
+d <- merge(c,d, by='year')
+
+d$hal <- d$Halibut_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$tan <- d$Tanner_Count/d$Sample_Hrs*d$Dredge_Hrs
+
+d <- d[,c(1,6,7)]
+d<- melt(d, id.vars=c( 'year'))
+ggplot(d, aes(year, value, color=variable, group=variable))+geom_line()+geom_point(size=3)+
+    scale_color_discrete(name="species",
+                         breaks=c("tan", "hal"),
+                         labels=c("Tanner", "Halibut"))
+@
+
+<<kshdisc, fig.pos="H", fig.cap="Scallop estimated discard weight for District KSH.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
+ksh.by <- merge(by, ksh, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'date', 'Year', 'vessel'))
+
+a <- aggregate(Sample_Hrs~year,data=subset(by, District=='KSH'), FUN=sum)
+a1 <- aggregate(Discard_Weight~year,data=subset(by, District=='KSH'), FUN=sum)
+a2 <- aggregate(Broken_Weight~year,data=subset(by, District=='KSH'), FUN=sum)
+a3 <- aggregate(Rem_Disc_Wt~year,data=subset(by, District=='KSH'), FUN=sum)
+b <- aggregate(Dredge_Hrs~year,data=ksh, FUN=sum)
+c <- aggregate(Round_Weight~year,data=ksh, FUN=sum)
+
+d <- merge(a,a1, by='year')
+d <- merge(d,a2, by='year')
+d <- merge(d,a3, by='year')
+d <- merge(b,d, by='year')
+d <- merge(c,d, by='year')
+d$wt <- d[,5]+d[,6]+d[,7]
+d$disc <- d$wt/d$Sample_Hrs*d$Dredge_Hrs
+d$per <- d$disc/d$Round_Weight*100
+ggplot(d, aes(year, disc))+geom_line()+geom_point(size=3)+ylim(0, max(d$disc))+ylab('Scallop discard weight (lbs)')
+    
+@
+
+<<tablksw, eval=FALSE, echo=FALSE>>=
+a <- aggregate(Dredge_Hrs~year, data=ksw, FUN=sum)
+b <- aggregate(Meat_Weight~year, data=ksw, FUN=sum)
+c <- merge(a,b, by='year')
+d <- aggregate(Haul_ID~year, data=ksw, FUN=length)
+d <- merge(c,d, by='year')
+d$cpue <- d$Meat_Weight/d$Dredge_Hrs
+d
+@
+
+
