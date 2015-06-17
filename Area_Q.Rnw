@@ -93,7 +93,7 @@ breaks <- c('2014', '2013','2012','2011','2010','2009')
 ak <- map_data('worldHires', c('USA:Alaska','Canada'))
 @
 
-<<cpueq, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
+<<cpueq, fig.pos="H", fig.cap="Log transformed CPUE (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
 
 #remove data where dredge hours & area swept are zero
 scallops <- subset(scallops,Area_Swept.nm2.>0)
@@ -159,7 +159,7 @@ q$fit <- fitted(fit)
 \section{Bering Sea Area Q}
 
 \subsubsection{Fishery performance}
-The 2014/15 Area Q scallop fishery opened on July 1. 2014 with a GHL of 15,000 lb scallop meat. Two vessels particpated in the fishery (Figure~\ref{fig:qvessel}) harvesting 12,445 lb scallop meat with a cpue of 24 lb meat/dredge hour (Table~\ref{table:q1}). Catch per unit effort decreased substantially in the 2014/15 season.
+The 2014/15 Area Q scallop fishery opened on July 1. 2014 with a GHL of 15,000 lb scallop meat. Two vessels particpated in the fishery (Figure~\ref{fig:qvessel}) harvesting 12,445 lb scallop meat with a CPUE of 24 lb meat/dredge hour (Table~\ref{table:q1}). Catch per unit effort decreased substantially in the 2014/15 season.
 
 
 \subsubsection{Size and age structure of catch}
@@ -187,30 +187,30 @@ d
 	\label{table:q1}
 	\begin{tabular}{lcccccc}
 		& 		&  Catch 	& Dredge  	& Number  	&  		 \\ 
-		Year	& GHL 	&(lb meat)  & (hours) 	& hauls  	& cpue$^a$\\ 
+		Year	& GHL 	&(lb meat)  & (hours) 	& hauls  	& CPUE$^a$\\ 
 		\hline	
-		1993/94&		&	284,414&		5,764&		3,326&	49\\
-		1994/95&		&	505,439	&	11,113&		6,508	&45\\
-		1995/96&	closed&			&	&& \\
-		1996/97&	600,000&		150,295&		2,313&		951&	65\\
-		1997/98&	600,000&		97,002&		2,246&		1,280	&43\\
-		1998/99	&	400,000&		96,795&		2,319&		1,178	&42\\
+		1993/94&		&	284,414&		5,764&		3,326&	         49\\
+		1994/95&		&	505,439	&	11,113&		6,508	&           45\\
+		1995/96&	closed&			&	&&                               \\
+		1996/97&	600,000&		150,295&		2,313&		951&	      65\\
+		1997/98&	600,000&		97,002&		2,246&		1,280	&     43\\
+		1998/99	&	400,000&		96,795&		2,319&		1,178	&  42\\
 		1999/00	&	400,000&		164,481&		3,294&		1,514&	50\\
 		2000/01	&	200,000&		205,520&		3,355&		1,564&	61\\
 		2001/02	&	200,000&		140,365&		3,072&		1,401&	46\\
 		2002/03	&	105,000&		90,562&		2,038&		1,010&	44\\
-		2003/04	&	105,000&		42,590&		1,020&		517&	41\\
-		2004/05	&	50,000&		10,050&		275&		145&	37\\
-		2005/06	&	50,000&		23,241&		602	&	303&	39\\
-		2006/07	&	50,000&		48,775&		1,138&		583&	43\\
-		2007/08	&	50,000&		50,299&		1,083&		540&	46\\
-		2008/09	&	50,000&		49,995&		960	&	642&	52\\
-		2009/10	&	50,000&		48,885&		1,274&		726&	38\\
-		2010/11	&	50,000&		50,099&		972	&	597&	52\\
-		2011/12	&	50,000&		50,275&		984	&	626&	51\\
-		2012/13	&	50,000&		50,045&		943	&	695&	53\\
-		2013/14	&	50,000&		49,989&		1,086&		719&	46\\
-		2014/15 & 50,000 & 12445 & 525 & 330 & 24\\
+		2003/04	&	105,000&		42,590&		1,020&		517&	   41\\
+		2004/05	&	50,000&		10,050&		275&		145&	      37\\
+		2005/06	&	50,000&		23,241&		602	&	303&	      39\\
+		2006/07	&	50,000&		48,775&		1,138&		583&	   43\\
+		2007/08	&	50,000&		50,299&		1,083&		540&	   46\\
+		2008/09	&	50,000&		49,995&		960	&	642&	      52\\
+		2009/10	&	50,000&		48,885&		1,274&		726&	   38\\
+		2010/11	&	50,000&		50,099&		972	&	597&	      52\\
+		2011/12	&	50,000&		50,275&		984	&	626&	      51\\
+		2012/13	&	50,000&		50,045&		943	&	695&	      53\\
+		2013/14	&	50,000&		49,989&		1,086&		719&	   46\\
+		2014/15  & 50,000    & 12445     & 525    & 330    &     24\\
 		
 		
 		\hline	
@@ -248,12 +248,12 @@ print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
 
 \begin{table}[H]
    \centering
-   \caption{Area Q catch summary for the 2009/10-2014/15 season for raw and standardized data. Data for this table are from the Kodiak Wiki*}
+   \caption{Area Q catch summary for the 2009/10-2014/15 season for raw and standardized CPUE. Data for this table are from the Kodiak Wiki*}
 	\label{table:q2}
    \vspace{1.5ex}
 \begin{tabular}{lrrcrrc}
    \hline
- &\multicolumn{3}{c}{Raw cpue} & \multicolumn{3}{c}{Standardized cpue}  \\ 
+ &\multicolumn{3}{c}{Raw CPUE} & \multicolumn{3}{c}{Standardized CPUE}  \\ 
 	 Year	& median&	mean& sd	& median&	mean&	sd\\
 \hline\\[-1.5ex]
 
@@ -280,7 +280,38 @@ qmap+geom_point(data=q, aes(Set_Lon,Set_Lat), alpha=.2)+facet_wrap(~ Year)+
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 @
 
-<<qcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area Q cpue.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<qraw,echo=FALSE,fig.pos="H", fig.cap="Annual raw and standardized CPUE with all years mean, a rolling 5-year mean, and the past five years mean.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=
+#raw data from table 1
+raw <- data.frame(year=1993:2014,cpue=c(49,45,NA,65,43,42,50,61,46,44,41,37,39,43,46,52,38,52,51,53,46,24))
+raw$mean=mean(raw$cpue, na.rm=T)
+raw$five_year=c(rep(NA,4),rollapply(raw$cpue,5,mean,align='right'))
+raw$last_five=c(rep(NA, length(raw$cpue)-5), rep(mean(raw$cpue[(length(raw$cpue)-4):length(raw$cpue)]),5))
+raw.m <- melt(raw, id.vars='year')
+
+# plot raw, mean and 5 year average cpue
+r1 <- ggplot(raw.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Raw CPUE')+xlab('Year')+
+   scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.22),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+#renamed for clarity
+names(e) <- c('year', 'std_cpue')
+e$mean <- mean(e$std_cpue)
+e$five_year=c(rep(NA,4),rollmean(e$std_cpue,5,align='right'))
+e$last_five=c(rep(NA, length(e$std_cpue)-5), rep(mean(e$std_cpue[(length(e$std_cpue)-4):length(e$std_cpue)]),5))
+e.m <- melt(e, id.vars='year')
+r2 <- ggplot(e.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Standardized CPUE')+xlab('Year')+
+         scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('std_cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+         theme(legend.key = element_blank(),legend.position = c(0.15, 0.32),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(r1,r2,ncol=2)
+@
+
+
+<<qcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area Q raw CPUE. The left pane shows the CPUE distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 #RAW density and number of tows
 m1 <- ggplot(q, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
@@ -296,7 +327,7 @@ m2 <- ggplot(q, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(c
 grid.arrange(m1,m2,ncol=2)
 @
 
-<<qfit,fig.pos="H", fig.cap="Density and number of tows by bed and year for Area Q standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<qfit,fig.pos="H", fig.cap="Density and number of tows by bed and year for Area Q standardized CPUE. The left pane shows the CPUE distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 #Model the CPUE
 
 
@@ -305,12 +336,12 @@ f1 <- ggplot(q, aes(fit,fill=Year,color=Year))+geom_density()+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.4),legend.background = 
-            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+xlab('standardized CPUE')
 
 f2 <- ggplot(q, aes(fit,fill=Year,color=Year))+geom_histogram()+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
-   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+xlab('standardized CPUE')
 grid.arrange(f1,f2,ncol=2)
 @
 
@@ -319,10 +350,10 @@ grid.arrange(f1,f2,ncol=2)
 #Model the CPUE
 #ggplot(q, aes(Year,fit, fill=Bed))+geom_boxplot()
 #ggplot(q, aes(vessel,fit, fill=Bed))+geom_boxplot()
-ggplot(q, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)
+ggplot(q, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)+ylab('standardized CPUE')
 @
 
-<<qfit2, fig.pos="H", fig.cap="Standardized and raw CPUE by year and bed for Area Q. Standardized cpue have bootstrap estimated 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<qfit2, fig.pos="H", fig.cap="Standardized and raw CPUE by year and bed for Area Q. Standardized CPUE have bootstrap estimated 95\\% confidence levels, the raw CPUE have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 r1 <- ggplot(q, aes(year, fit))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+coord_cartesian(ylim=c(3.3,4.1))+ylab('standardized cpue')
 
 
@@ -393,7 +424,7 @@ grid.arrange(s1,s2,ncol=2)
 
 
 
-<<qage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area Q. ",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=   
+<<qage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area Q. The left pane shows the aged shell distribution, the right pane shows the number of shells aged.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=   
 #Ages
 
 q.age <- merge(q, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
@@ -405,7 +436,7 @@ a1 <- ggplot(q.age, aes(annuli, fill=Year, color=Year))+geom_density()+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+guides(colour = guide_legend(override.aes = list(alpha = 1)))+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
-a2 <- ggplot(q.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+
+a2 <- ggplot(q.age, aes(annuli, fill=Year, color=Year))+geom_histogram(binwidth=1)+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.75),legend.background = 
@@ -414,7 +445,7 @@ a2 <- ggplot(q.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+
 grid.arrange(a1,a2,ncol=2)
 @
 
-<<qage2, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area Q.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
+<<qage2, fig.pos="H", fig.cap="Retained and discarded shell ages (annuli) by bed and year for Area Q. The left pane shows the aged shell distribution, the right pane shows the number of shells aged.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
  #Ages
                                            
                         
@@ -423,7 +454,7 @@ a1 <- ggplot(q.age, aes(annuli,fill=Rtnd_Disc))+geom_density()+facet_grid(Year~.
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.08),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(q.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white')+facet_grid(Year~.)+
+a2 <- ggplot(q.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white',binwidth=1)+facet_grid(Year~.)+
       guides(colour = guide_legend(override.aes = list(alpha = 1)))+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(a1,a2,ncol=2)
@@ -478,7 +509,7 @@ ggplot(q.age, aes(Depth,annuli, group=Year))+geom_point(alpha=.2,color='black')+
 ggplot(q.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geom_point(alpha=.2,color='black')+stat_smooth(method='lm')
 @
 
-<<qcrab, fig.pos="H", fig.cap="Estimated Tanner Crab and Pacific Halibut catch for Area Q.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
+<<qcrab, fig.pos="H", fig.cap="Estimated Tanner, Opilio, Red King Crab and Pacific Halibut catch for Area Q.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
 q.by <- merge(by, q, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'date', 'Year', 'vessel'))
 
 a <- aggregate(Halibut_Count~year,data=subset(by, District=='Q'), FUN=sum)

@@ -96,7 +96,7 @@ ak <- map_data('worldHires', c('USA:Alaska','Canada'))
 @
 
 
-<<cpuem, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
+<<cpuem, fig.pos="H", fig.cap="Log transformed CPUE (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
 
 #remove data where dredge hours & area swept are zero
 scallops <- subset(scallops,Area_Swept.nm2.>0)
@@ -160,9 +160,9 @@ fit <- gam(mwt.cpue~s(Depth,k=4)+te(Set_Lon,Set_Lat)+Year+vessel-1, data=m, gamm
 m$fit <- fitted(fit)
 @
 
-\section{Unimak Bight Exploratory Fishery Area M}
+\section{Area M}
 \subsubsection{Fishery performance}
-The 2014/15 Area M scallop fishery opened on July 1. 2014 with a GHL of 15,000 lb scallop meat. Two vessels particpated in the fishery (Figure~\ref{fig:mvessel}) harvesting 15,000 lb scallop meat with a cpue of 53 lb meat/dredge hour (Table~\ref{table:m1}). 
+The 2014/15 Area M scallop fishery opened on July 1. 2014 with a GHL of 15,000 lb scallop meat. Two vessels particpated in the fishery (Figure~\ref{fig:mvessel}) harvesting 15,000 lb scallop meat with a CPUE of 53 lb meat/dredge hour (Table~\ref{table:m1}). 
 
 
 \subsubsection{Size and age structure of catch}
@@ -190,30 +190,30 @@ d
 	\label{table:m1}
 	\begin{tabular}{lcccccc}
 				& 		&  Catch 	& Dredge  	& Number  	&  		 \\ 
-		Year	& GHL 	&(lb meat)  & (hours) 	& hauls  	& cpue$^a$\\ 
+		Year	& GHL 	&(lb meat)  & (hours) 	& hauls  	& CPUE$^a$\\ 
 		\hline	
 		1993/94&   		&	112,087	&	1,847	&	957		&	61\\
-		1994/95&		& 65,282	&	1,664	&	1,115	&	39\\
+		1994/95&		& 65,282	&	1,664	&	1,115	&	   `     39\\
 		1995/96&	closed&			&			&			&\\
 		1996/97&	200,000&	12,560&	327		&	177		&	38\\
-		1997/98&	200,000&	51,616&	1,752	&	1,050	&	29\\
-		1998/99&	200,000&	63,290&	1,612	&	681		&	39\\
-		1999/00&	200,000&	75,535&	2,025	&	1,099	&	37\\
+		1997/98&	200,000&	51,616&	1,752	&	1,050	&	      29\\
+		1998/99&	200,000&	63,290&	1,612	&	681		&	   39\\
+		1999/00&	200,000&	75,535&	2,025	&	1,099	&	      37\\
 		2000/01&	33,000&	7,660	&	320		&	188		&	24\\
 		2001/02&	closed&			&			&		&	\\
 		2002/03&	closed&			&			&		&	\\
 		2003/04&	10,000&	No Effort&			&		&\\			
 		2004/05&	10,000&	No Effort&	&		&\\		
 		2005/06&	10,000&	No Effort&	&&\\		
-		2006/07&	25,000&	155&	64&	73&	2\\
+		2006/07&	25,000&	155&	64&	73&	               2\\
 		2007/08&	10,000&	No Effort&&&		\\	
-		2008/09&	10,000&	2,460&	154&	114&	16\\
+		2008/09&	10,000&	2,460&	154&	114&	            16\\
 		2009/10&	closed&	&&		&	\\
 		2010/11&	closed&	&&		&	\\
 		2011/12&	closed&	&&		&	\\
-		2012/13&	15,000$^b$&	15,040&	255&	248&	59\\
-		2013/14&	15,000$^b$&	15,155&	247&	152&	61\\
-		2014/15&	15,000$^b$	&15,000		&	285			&	211			&	53\\
+		2012/13&	15,000$^b$&	15,040&	255&	248&	         59\\
+		2013/14&	15,000$^b$&	15,155&	247&	152&	         61\\
+		2014/15&	15,000$^b$	&15,000		&	285	&	211&	53\\
 		
 		\hline	
 		\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	\\
@@ -256,7 +256,7 @@ print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
    \vspace{1.5ex}
 \begin{tabular}{lrrcrrc}
    \hline
- &\multicolumn{3}{c}{Raw cpue} & \multicolumn{3}{c}{Standardized cpue}  \\ 
+ &\multicolumn{3}{c}{Raw CPUE} & \multicolumn{3}{c}{Standardized CPUE}  \\ 
     Year	& median&	mean& sd	& median&	mean&	sd\\
 \hline\\[-1.5ex]
 
@@ -283,7 +283,37 @@ mmap+geom_point(data=m, aes(Set_Lon,Set_Lat), alpha=.2)+facet_wrap(~ Year)+
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 @
 
-<<mcpue, fig.pos="H", fig.cap="Density and number of tows by year for Area M cpue.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<mraw,echo=FALSE,fig.pos="H", fig.cap="Annual raw and standardized CPUE with all years mean, a rolling 5-year mean, and the past five years mean.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=
+#raw data from table 1
+raw <- data.frame(year=1993:2014,cpue=c(61,39,NA,38,29,39,37,24,rep(NA,5),2,NA,16,rep(NA,3),59,61,53))
+raw$mean=mean(raw$cpue, na.rm=T)
+raw$five_year=c(rep(NA,4),rollapply(raw$cpue,5,mean,align='right'))
+raw$last_five=c(rep(NA, length(raw$cpue)-5), rep(mean(raw$cpue[(length(raw$cpue)-4):length(raw$cpue)]),5))
+raw.m <- melt(raw, id.vars='year')
+
+# plot raw, mean and 5 year average cpue
+r1 <- ggplot(raw.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Raw CPUE')+xlab('Year')+
+   scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.22),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+#renamed for clarity
+names(e) <- c('year', 'std_cpue')
+e$mean <- mean(e$std_cpue)
+#e$five_year=c(rep(NA,4),rollmean(e$std_cpue,5,align='right')) NOT ENOUGH DATA
+#e$last_five=c(rep(NA, length(e$std_cpue)-5), rep(mean(e$std_cpue[(length(e$std_cpue)-4):length(e$std_cpue)]),5)) NOT ENOUGH DATA
+e.m <- melt(e, id.vars='year')
+r2 <- ggplot(e.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Standardized CPUE')+xlab('Year')+
+         scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('std_cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+         theme(legend.key = element_blank(),legend.position = c(0.15, 0.32),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+scale_x_continuous(breaks=2012:2014)
+grid.arrange(r1,r2,ncol=2)
+@
+
+<<mcpue, fig.pos="H", fig.cap="Density and number of tows by year for Area M raw CPUE.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 #RAW density and number of tows
 m1 <- ggplot(m, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
@@ -299,16 +329,16 @@ m2 <- ggplot(m, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+xlab('log(c
 grid.arrange(m1,m2,ncol=2)
 @
 
-<<mfit, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area M standardized cpue.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<mfit, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area M standardized CPUE.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 
-f1 <- ggplot(m, aes(fit,fill=Year,color=Year))+geom_density()+
+f1 <- ggplot(m, aes(fit,fill=Year,color=Year))+geom_density()+xlab('standardized CPUE')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.4),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
-f2 <- ggplot(m, aes(fit,fill=Year,color=Year))+geom_histogram()+
+f2 <- ggplot(m, aes(fit,fill=Year,color=Year))+geom_histogram()+xlab('standardized CPUE')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
    scale_color_manual(values=values,breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
@@ -316,16 +346,16 @@ grid.arrange(f1,f2,ncol=2)
 @
 
 
-<<mvessel, fig.pos="H", fig.cap="Annual vessel effect from model fit, Area M.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png',dpi=300>>=
+<<mvessel, fig.pos="H", fig.cap="Annual vessel effect from model standardized CPUE model, Area M.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png',dpi=300>>=
 #Model the CPUE
 #ggplot(q, aes(Year,fit, fill=Bed))+geom_boxplot()
 #ggplot(q, aes(vessel,fit, fill=Bed))+geom_boxplot()
-ggplot(m, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)
+ggplot(m, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)+ylab('standardized CPUE')
 @
 
-<<mfit2, fig.pos="H", fig.cap="Standardized and raw CPUE by year and bed for Area M. Standardized cpue have bootstrap estimated 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<mfit2, fig.pos="H", fig.cap="Standardized and raw CPUE by year and bed for Area M. Standardized CPUE have bootstrap estimated 95\\% confidence levels, the raw CPUE have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 r1 <- ggplot(m, aes(year, fit))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+coord_cartesian(ylim=c(3.9,4.3))+
-   ylab('standardized cpue')
+   ylab('standardized CPUE')
 
 
 a <- aggregate(mwt.cpue~year,data=m, FUN=mean)
@@ -407,7 +437,7 @@ a1 <- ggplot(m.age, aes(annuli, fill=Year, color=Year))+geom_density()+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+guides(colour = guide_legend(override.aes = list(alpha = 1)))+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
-a2 <- ggplot(m.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+
+a2 <- ggplot(m.age, aes(annuli, fill=Year, color=Year))+geom_histogram(binwidth=1)+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.75),legend.background = 
@@ -425,7 +455,7 @@ a1 <- ggplot(m.age, aes(annuli))+geom_density(alpha=.3, fill=4)+facet_grid(Year~
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.08),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(m.age, aes(annuli))+geom_histogram(color='white',alpha=.3, fill=4)+facet_grid(Year~.)+
+a2 <- ggplot(m.age, aes(annuli))+geom_histogram(color='white',binwidth=1,alpha=.3, fill=4)+facet_grid(Year~.)+
       guides(colour = guide_legend(override.aes = list(alpha = 1)))+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(a1,a2,ncol=2)
@@ -481,27 +511,33 @@ ggplot(m.sh, aes(Shell_Height, Meat_Weight,group=Year,color=Year,fill=Year))+geo
 @
 
 
-<<mcrab, fig.pos="H", fig.cap="Estimated Tanner Crab and Pacific Halibut catch for Area M.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
+<<mcrab, fig.pos="H", fig.cap="Estimated Tanner, Opilio, Red King Crab and Pacific Halibut bycatch for Area M.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
 m.by <- merge(by, m, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'date', 'Year', 'vessel'))
 
 a <- aggregate(Halibut_Count~year,data=subset(by, District=='UB'), FUN=sum)
 a1 <- aggregate(Tanner_Count~year,data=subset(by, District=='UB'), FUN=sum)
+a2 <- aggregate(Opilio_Count~year,data=subset(by, District=='UB'), FUN=sum)
+a3 <- aggregate(King_Count~year,data=subset(by, District=='UB'), FUN=sum)
 b <- aggregate(Sample_Hrs~year,data=subset(by, District=='UB'), FUN=sum)
 c <- aggregate(Dredge_Hrs~year,data=m, FUN=sum)
 
 d <- merge(a,b, by='year')
 d <- merge(a1,d, by='year')
+d <- merge(a2,d, by='year')
+d <- merge(a3,d, by='year')
 d <- merge(c,d, by='year')
 
 d$hal <- d$Halibut_Count/d$Sample_Hrs*d$Dredge_Hrs
 d$tan <- d$Tanner_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$opi <- d$Opilio_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$king <- d$King_Count/d$Sample_Hrs*d$Dredge_Hrs
 
-d <- d[,c(1,6,7)]
+d <- d[,c(1,7:11)]
 d<- melt(d, id.vars=c( 'year'))
 ggplot(d, aes(year, value, color=variable, group=variable))+geom_line()+geom_point(size=3)+
     scale_color_discrete(name="species",
-                         breaks=c("tan", "hal"),
-                         labels=c("Tanner", "Halibut"))
+                         breaks=c("tan", "hal", "opi", 'king'),
+                         labels=c("Tanner", "Halibut", "Opilio", "King"))
 @
 
 

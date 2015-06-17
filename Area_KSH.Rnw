@@ -213,12 +213,13 @@ An estimated 51,593 Tanner Crab, a substatial increase from previous years, and 
          2011/12&	135,000&	133,079&	2,437&	1,660&	55\\
          2012/13&	105,000&	106,051&	2,002&	1,347&	53\\
          2013/14&	105,000&	108,128&	2,541&	1,680&	43\\
-         2014/15&   65,000$^b$     & 65,938 & 1,617&   1,040&   41\\
+         2014/15& 105,000$^b$     & 65,938 & 1,617&   1,040&   41\\
 			\hline	
 			\multicolumn{3}{l}{$^a$lb scallop meat/dredge hour}	\\
-         \multicolumn{3}{l}{$^b$Inseason reduction from 105,000}
+         \multicolumn{3}{l}{$^b$Inseason closure at 65,000}
 		\end{tabular} 
 	\end{table}
+   
 <<ksh_xtbl, results='asis', error=FALSE, warning=FALSE,message=FALSE, echo=FALSE>>=
 
 #A cheat for making a table with multirow column names
@@ -282,6 +283,51 @@ kshmap+geom_point(data=ksh, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wra
    scale_fill_manual(values=bvalues,breaks=bbreaks, name='Bed')+
    scale_color_manual(values=bvalues,breaks=bbreaks, name='Bed')
 @
+
+
+<<kshraw,echo=FALSE,fig.pos="H", fig.cap="Raw annual and standardized CPUE with all years mean, a rolling 5-year mean, and the past five years mean.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=
+#raw data from table 1
+raw <- data.frame(year=1993:2014,cpue=c(42,37,NA,63,47,44,44,62,53,47,64,50,70,74,58,48,49,49,55,53,43,41))
+raw$mean=mean(raw$cpue, na.rm=T)
+raw$five_year=c(rep(NA,4),rollapply(raw$cpue,5,mean,align='right'))
+raw$last_five=c(rep(NA, length(raw$cpue)-5), rep(mean(raw$cpue[(length(raw$cpue)-4):length(raw$cpue)], na.rm=T),5))
+raw.m <- melt(raw, id.vars='year')
+
+# plot raw, mean and 5 year average cpue
+r1 <- ggplot(raw.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Raw CPUE')+xlab('Year')+
+   scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.61, 0.22),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+#renamed for clarity
+names(e) <- c('year', 'std_cpue')
+e$mean <- mean(e$std_cpue)
+e$five_year=c(rep(NA,4),rollmean(e$std_cpue,5,align='right'))
+e$last_five=c(rep(NA, length(e$std_cpue)-5), rep(mean(e$std_cpue[(length(e$std_cpue)-4):length(e$std_cpue)]),5))
+e.m <- melt(e, id.vars='year')
+r2 <- ggplot(e.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Standardized CPUE')+xlab('Year')+
+         scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('std_cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+         theme(legend.key = element_blank(),legend.position = c(0.15, 0.82),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(r1,r2,ncol=2)
+@
+
+<<kshraw1,echo=FALSE,fig.pos="H", fig.cap="Raw annual and standardized CPUE with all years mean (dashed line), by bed.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=      
+hline_data <- aggregate(mwt.cpue~Bed,data=ksh, FUN=mean)
+r1 <- ggplot(ksh, aes(year, mwt.cpue, color=Bed))+stat_summary(fun.y=mean, geom='line')+
+      facet_grid(Bed~.)+geom_hline(data=hline_data,aes(yintercept=mwt.cpue), lty=4)+ylab('Raw CPUE')+
+        guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+        
+hline_data <- aggregate(fit~Bed,data=ksh, FUN=mean)
+r2 <- ggplot(ksh, aes(year, fit, color=Bed))+stat_summary(fun.y=mean, geom='line')+
+      facet_grid(Bed~.)+geom_hline(data=hline_data,aes(yintercept=fit), lty=4)+ylab('Standardized CPUE')+
+        guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())        
+grid.arrange(r1,r2,ncol=2)
+@
+
 
 <<kshcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KSH cpue. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300>>=
 #RAW density and number of tows
@@ -414,7 +460,7 @@ a1 <- ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_g
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.15),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~., scales='free_y')+
+a2 <- ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_histogram(binwidth=1)+facet_grid(Bed~., scales='free_y')+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+
@@ -422,7 +468,7 @@ a2 <- ggplot(ksh.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet
 grid.arrange(a1,a2,ncol=2)
 @                                 
 
-<<kshage2, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KNE. The left pane shows the shell age distribution for all of the hauls, the right pane shows the number of shells used for aging.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
+<<kshage2, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KSH. The left pane shows the shell age distribution for all of the hauls, the right pane shows the number of shells used for aging.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
  #Ages
                                            
                         
@@ -431,7 +477,7 @@ a1 <- ggplot(ksh.age, aes(annuli,fill=Rtnd_Disc))+geom_density(alpha=.3)+facet_g
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.08),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(ksh.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white')+facet_grid(Year~.)+
+a2 <- ggplot(ksh.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white',binwidth=1)+facet_grid(Year~.)+
       guides(colour = guide_legend(override.aes = list(alpha = 1)))+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(a1,a2,ncol=2)
@@ -487,22 +533,28 @@ ksh.by <- merge(by, ksh, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 
 
 a <- aggregate(Halibut_Count~year,data=subset(by, District=='KSH'), FUN=sum)
 a1 <- aggregate(Tanner_Count~year,data=subset(by, District=='KSH'), FUN=sum)
+a2 <- aggregate(Opilio_Count~year,data=subset(by, District=='KSH'), FUN=sum)
+a3 <- aggregate(King_Count~year,data=subset(by, District=='KSH'), FUN=sum)
 b <- aggregate(Sample_Hrs~year,data=subset(by, District=='KSH'), FUN=sum)
 c <- aggregate(Dredge_Hrs~year,data=ksh, FUN=sum)
 
 d <- merge(a,b, by='year')
 d <- merge(a1,d, by='year')
+d <- merge(a2,d, by='year')
+d <- merge(a3,d, by='year')
 d <- merge(c,d, by='year')
 
 d$hal <- d$Halibut_Count/d$Sample_Hrs*d$Dredge_Hrs
 d$tan <- d$Tanner_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$opi <- d$Opilio_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$king <- d$King_Count/d$Sample_Hrs*d$Dredge_Hrs
 
-d <- d[,c(1,6,7)]
+d <- d[,c(1,7:11)]
 d<- melt(d, id.vars=c( 'year'))
 ggplot(d, aes(year, value, color=variable, group=variable))+geom_line()+geom_point(size=3)+
     scale_color_discrete(name="species",
-                         breaks=c("tan", "hal"),
-                         labels=c("Tanner", "Halibut"))
+                         breaks=c("tan", "hal", "opi", 'king'),
+                         labels=c("Tanner", "Halibut", "Opilio", "King"))
 @
 
 <<kshdisc, fig.pos="H", fig.cap="Scallop estimated discard weight for District KSH.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   

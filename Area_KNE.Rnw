@@ -17,7 +17,7 @@ library(plyr)
 library(xtable)
 library(reshape2)
 library(xtable)
-
+library(zoo)
 #import data To update with a new year simply add a new file and bind it with the others
 scallops09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopCatchByHaul.csv")
 scallops10 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2010-scallopCatchByHaul.csv")
@@ -287,7 +287,51 @@ knemap+geom_point(data=kne, aes(Set_Lon,Set_Lat, color=Bed), alpha=.2)+facet_wra
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 @
 
-<<knecpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KNE cpue. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
+<<kneraw,echo=FALSE,fig.pos="H", fig.cap="Annual raw and standardized CPUE with all years mean, a rolling 5-year mean, and the past five years mean.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=
+#raw data from table 1
+raw <- data.frame(year=1993:2014,cpue=c(22,20,NA,20,37,44,56,73,70,59,64,65,46,64,63,56,57,64, 62,47,59,74))
+raw$mean=c(rep(NA, 5),rep(mean(raw$cpue[-c(1:5)], na.rm=T), length(raw$cpue)-5))
+raw$five_year=c(rep(NA,4),rollapply(raw$cpue,5,mean,align='right'))
+raw$last_five=c(rep(NA, length(raw$cpue)-5), rep(mean(raw$cpue[(length(raw$cpue)-4):length(raw$cpue)], na.rm=T),5))
+raw.m <- melt(raw, id.vars='year')
+
+# plot raw, mean and 5 year average cpue
+r1 <- ggplot(raw.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Raw CPUE')+xlab('Year')+
+   scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.61, 0.22),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+#renamed for clarity
+names(e) <- c('year', 'std_cpue')
+e$mean <- mean(e$std_cpue)
+e$five_year=c(rep(NA,4),rollmean(e$std_cpue,5,align='right'))
+e$last_five=c(rep(NA, length(e$std_cpue)-5), rep(mean(e$std_cpue[(length(e$std_cpue)-4):length(e$std_cpue)]),5))
+e.m <- melt(e, id.vars='year')
+r2 <- ggplot(e.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Standardized CPUE')+xlab('Year')+
+         scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('std_cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+         theme(legend.key = element_blank(),legend.position = c(0.15, 0.82),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(r1,r2,ncol=2)
+@
+
+
+<<kneraw1,echo=FALSE,fig.pos="H", fig.cap="Annual raw and standardized CPUE with all years mean (dashed line), by bed.", warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=      
+hline_data <- aggregate(mwt.cpue~Bed,data=kne, FUN=mean)
+r1 <- ggplot(kne, aes(year, mwt.cpue, color=Bed))+stat_summary(fun.y=mean, geom='line')+
+      facet_grid(Bed~.)+geom_hline(data=hline_data,aes(yintercept=mwt.cpue), lty=4)+ylab('Raw CPUE')+
+        guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+        
+hline_data <- aggregate(fit~Bed,data=kne, FUN=mean)
+r2 <- ggplot(kne, aes(year, fit, color=Bed))+stat_summary(fun.y=mean, geom='line')+
+      facet_grid(Bed~.)+geom_hline(data=hline_data,aes(yintercept=fit), lty=4)+ylab('Standardized CPUE')+
+        guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())        
+grid.arrange(r1,r2,ncol=2)
+@
+
+<<knecpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KNE cpue. The left pane shows the CPUE distribution for all of the hauls, the right pane shows the number of hauls for a given CPUE.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
 #RAW density and number of tows
 m1 <- ggplot(kne, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
    scale_fill_manual(values=values,breaks=breaks, name='Year')+
@@ -303,7 +347,7 @@ m2 <- ggplot(kne, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+facet_gri
 grid.arrange(m1,m2,ncol=2)
 @
 
-<<knefit, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KNE standardized cpue. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
+<<knefit, fig.pos="H", fig.cap="Density and number of tows by bed and year for District KNE standardized cpue. The left pane shows the CPUE distribution for all of the hauls, the right pane shows the number of hauls for a given CPUE.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
 #Model the CPUE
 
 f1 <- ggplot(kne, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
@@ -324,10 +368,10 @@ grid.arrange(f1,f2,ncol=2)
 #Model the CPUE
 #ggplot(kne, aes(Year,fit, fill=Bed))+geom_boxplot()
 #ggplot(kne, aes(vessel,fit, fill=Bed))+geom_boxplot()
-ggplot(kne, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)
+ggplot(kne, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)+ylab('Standardized CPUE')
 @
 
-<<knefit2, fig.pos="H", fig.cap="Standardized and raw and standardized CPUE by year and bed for District KNE.  Standardized cpue have bootstrap estimated 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=3.9, cache=TRUE,dev='png', dpi=300>>=
+<<knefit2, fig.pos="H", fig.cap="Standardized and raw and standardized CPUE by year and bed for District KNE.  Standardized CPUE have bootstrap estimated 95\\% confidence levels, the raw CPUE have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=3.9, cache=TRUE,dev='png', dpi=300>>=
 r1 <- ggplot(kne, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
    scale_fill_manual(values = c('1'='#a6bddb40','2'='#998ec340','3'='#99d8c940',
          '4'='#fee0b640','5'='#f1a34030','6'='#3690c030', '7'='#a3580610'),
@@ -336,7 +380,7 @@ r1 <- ggplot(kne, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mea
          '4'='#fee0b6','5'='#f1a340','6'='#3690c0', '7'='#a35806'),
          breaks= c('1', '2','3','4','5','6', '7'), name='bed')+coord_cartesian(ylim=c(3,4.5))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.16),legend.background = 
-            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('standardized cpue')
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('Standardized CPUE')
 
 a <- aggregate(mwt.cpue~year+Bed,data=kne, FUN=mean)
 b <- aggregate(mwt.cpue~year+Bed,data=kne, FUN=sd)
@@ -355,11 +399,11 @@ r2 <- ggplot(d, aes(year,mwt.cpue, fill=Bed))+geom_line(aes(color=Bed))+
    scale_color_manual(values = c('1'='#542788','2'='#998ec3','3'='#99d8c9',
          '4'='#fee0b6','5'='#f1a340','6'='#3690c0', '7'='#a35806'),
          breaks= c('1', '2','3','4','5','6', '7'), name='bed')+coord_cartesian(ylim=c(3,4.5))+
-      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('raw cpue')
+      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('Raw CPUE')
 grid.arrange(r1,r2,ncol=2)
 @
 
-<<knefit3, fig.pos="H", fig.cap="Standardized and raw and standardized CPUE by year and bed for District KNE.  Standardized cpue have bootstrap estimated 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=3.9, cache=TRUE,dev='png', dpi=300, eval=FALSE>>=
+<<knefit3, fig.pos="H", fig.cap="Standardized and raw and standardized CPUE by year and bed for District KNE.  Standardized CPUE have bootstrap estimated 95\\% confidence levels, the raw CPUE have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=3.9, cache=TRUE,dev='png', dpi=300, eval=FALSE>>=
 r1 <- ggplot(kne, aes(year, fit))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.16),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('standardized cpue')
@@ -381,7 +425,7 @@ r1+stat_summary(aes(year, mwt.cpue),fun.y=mean, geom='line')
 grid.arrange(r1,r2,ncol=2)
 @
 
-<<knesh, fig.pos="H", fig.cap="Shell heights by bed and year for District KNE. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                                           
+<<knesh, fig.pos="H", fig.cap="Shell heights by bed and year for District KNE. The left pane shows the distribution of all of the samples, the right pane shows the number of samples by year (stacked bars).",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                                           
 #Shell heights
 kne.sh <- merge(kne,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
                                            
@@ -401,7 +445,7 @@ s2 <- ggplot(kne.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+f
 grid.arrange(s1,s2,ncol=2)
 @
 
-<<knesh14, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for District KNE in 2014. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<knesh14, fig.pos="H", fig.cap="Retained and discarded shell heights by bed for District KNE in 2014. The left pane shows the distribution for all of the samples, the right pane shows the number samples (stacked bars).",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 #SH by bed
 s1 <- ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Bed~.)+
    scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
@@ -415,7 +459,7 @@ s2 <- ggplot(subset(kne.sh, year==2014), aes(Shell_Height, fill=Rtnd_Disc,color=
 grid.arrange(s1,s2,ncol=2)
 @
 
-<<knesh3, fig.pos="H", fig.cap="Shell heights by year, all beds combined, for District KNE. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+<<knesh3, fig.pos="H", fig.cap="Shell heights by year, all beds combined, for District KNE. The left pane shows the distribution for all of the samples, the right pane shows the number of samples.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
 
 #SH by year
 s1 <- ggplot(kne.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
@@ -431,7 +475,7 @@ s2 <- ggplot(kne.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_his
 grid.arrange(s1,s2,ncol=2)
 @
 
-<<kneage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KNE. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
+<<kneage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for District KNE. The left pane shows the  distribution for all of the annuli sampled, the right pane shows the number of samples.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
  #Ages
                                            
 kne.age <- merge(kne, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
@@ -444,7 +488,7 @@ a1 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_g
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.08),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~.)+
+a2 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_histogram(binwidth=1)+facet_grid(Bed~.)+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+
@@ -452,7 +496,7 @@ a2 <- ggplot(kne.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet
 grid.arrange(a1,a2,ncol=2)
 @                                           
 
-<<kneage2, fig.pos="H", fig.cap="Shell ages (annuli) by year for District KNE. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
+<<kneage2, fig.pos="H", fig.cap="Shell ages (annuli) by year for District KNE. The left pane shows the  distribution for all of the annuli sampled, the right pane shows the number of samples.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=                               
  #Ages
                                            
                         
@@ -461,7 +505,7 @@ a1 <- ggplot(kne.age, aes(annuli,fill=Rtnd_Disc))+geom_density(alpha=.3)+facet_g
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.08),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(kne.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white', alpha=.6)+facet_grid(Year~.)+
+a2 <- ggplot(kne.age, aes(annuli,fill=Rtnd_Disc))+geom_histogram(color='white',binwidth=1, alpha=.6)+facet_grid(Year~.)+
       guides(colour = guide_legend(override.aes = list(alpha = 1)))+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(a1,a2,ncol=2)
@@ -527,27 +571,33 @@ grid.arrange(as1,as2,ncol=2)
 
 @
 
-<<knecrab, fig.pos="H", fig.cap="Estimated Tanner Crab and Pacific Halibut catch for District KNE.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
+<<knecrab, fig.pos="H", fig.cap="Estimated Tanner Crab Pacific Halibut, Opilio Crab and Red King Crab bycatch for District KNE.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   
 kne.by <- merge(by, kne, by=c('Fishery', 'District','ADFG', 'set_date', 'year', 'date', 'Year', 'vessel'))
 
 a <- aggregate(Halibut_Count~year,data=subset(by, District=='KNE'), FUN=sum)
 a1 <- aggregate(Tanner_Count~year,data=subset(by, District=='KNE'), FUN=sum)
+a2 <- aggregate(Opilio_Count~year,data=subset(by, District=='KNE'), FUN=sum)
+a3 <- aggregate(King_Count~year,data=subset(by, District=='KNE'), FUN=sum)
 b <- aggregate(Sample_Hrs~year,data=subset(by, District=='KNE'), FUN=sum)
 c <- aggregate(Dredge_Hrs~year,data=kne, FUN=sum)
 
 d <- merge(a,b, by='year')
 d <- merge(a1,d, by='year')
+d <- merge(a2,d, by='year')
+d <- merge(a3,d, by='year')
 d <- merge(c,d, by='year')
 
 d$hal <- d$Halibut_Count/d$Sample_Hrs*d$Dredge_Hrs
 d$tan <- d$Tanner_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$opi <- d$Opilio_Count/d$Sample_Hrs*d$Dredge_Hrs
+d$king <- d$King_Count/d$Sample_Hrs*d$Dredge_Hrs
 
-d <- d[,c(1,6,7)]
+d <- d[,c(1,7:11)]
 d<- melt(d, id.vars=c( 'year'))
 ggplot(d, aes(year, value, color=variable, group=variable))+geom_line()+geom_point(size=3)+
     scale_color_discrete(name="species",
-                         breaks=c("tan", "hal"),
-                         labels=c("Tanner", "Halibut"))
+                         breaks=c("tan", "hal", "opi", 'king'),
+                         labels=c("Tanner", "Halibut", "Opilio", "King"))
 @
 
 <<knedisc, fig.pos="H", fig.cap="Scallop estimated discard weight for District KNE.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, eval=TRUE>>=   

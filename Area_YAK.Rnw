@@ -1,4 +1,4 @@
-<<set-parent, echo=FALSE,cache=FALSE,eval=FALSE>>=
+<<set-parent, echo=FALSE,cache=FALSE,eval=TRUE>>=
 set_parent('2015_scallop.Rnw')
 @
 
@@ -21,6 +21,7 @@ library(plyr)
 library(xtable)
 library(reshape2)
 library(xtable)
+library(zoo)
 
 #import data To update with a new year simply add a new file and bind it with the others
 scallops09 <- read.csv("C:/Users/bcwilliams/Documents/Fisheries/scallops/Data/2009-scallopCatchByHaul.csv")
@@ -99,7 +100,7 @@ breaks <- c('2014', '2013','2012','2011','2010','2009')
 ak <- map_data('worldHires', c('USA:Alaska','Canada'))
 @
 
-<<cpueyak, fig.pos="H", fig.cap="Log transformed cpue (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
+<<cpueyak, fig.pos="H", fig.cap="Log transformed CPUE (weight/area swept) by round weight and shell weight.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE,dev='png', dpi=300, message=FALSE>>=
 
 #remove data where dredge hours & area swept are zero
 scallops <- subset(scallops,Area_Swept.nm2.>0)
@@ -184,7 +185,7 @@ yak$fit <- fitted(fit)
    \subsubsection{Fishery performance}
    A total of 120,353 pounds of meat were retained from three vessels (ADF\&G \#40924, \#54966, \#58200) that participated in the 2014/2015 Yakutat District fishery (Table~\ref{table:yakt1}). Two vessels (ADF\&G \#40924, \#58200) participated in the District 16 fishery (note that all of Bed 6 is included in this assessment) and caught a total of 9,140 pounds of scallop meat (Table~\ref{table:d16t1}).
 
-It is evident that there is substantial spatial fishing variability within a given bed by year (Figures~\ref{fig:yakmap} and \ref{fig:yak2}). The non-standardized cpue shows a general trend in 2014/15 of higher cpue to the West (bed B) and lower cpue to the East (bed D16). In particular bed 3 saw very little directed effort during the 2014/15 season.
+It is evident that there is substantial spatial fishing variability within a given bed by year (Figures~\ref{fig:yakmap} and \ref{fig:yak2}). The raw CPUE shows a general trend in 2014/15 of higher CPUE to the West (bed B) and lower CPUE to the East (bed D16). In particular bed 3 saw very little directed effort during the 2014/15 season.
 
 
 \begin{table}[H]
@@ -194,7 +195,7 @@ It is evident that there is substantial spatial fishing variability within a giv
 \label{table:yakt1}
    \begin{tabular}{lcccccc}
             &  \multicolumn{2}{c}{Retained catch} & Dredge  & Number  &   \\ 
-		Year	&(lb meat)  & (lb round) & hours & hauls  & cpue$^a$    \\ 
+		Year	&(lb meat)  & (lb round) & hours & hauls  & CPUE$^a$    \\ 
 \hline	1995	& 242,491& 3,214,968 &  4,712&  2,597&  51   \\ 
 		1996	& 238,736& 3,195,254 &  3,982&  2,102&  60    \\ 
 		1997/98	& 242,940& 	3,282,860& 	3,956& 	1,958& 	61\\
@@ -220,22 +221,23 @@ It is evident that there is substantial spatial fishing variability within a giv
 	\end{tabular} 
 \end{table}
 
+
 <<yak_xtbl, results='asis', error=FALSE, warning=FALSE,message=FALSE, echo=FALSE>>=
 
 #A cheat for making a table with multirow column names
-a <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=yak, FUN=median)
+a <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=median)
 names(a) <- c('year', 'median')
 
-b <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=yak, FUN=mean)
+b <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=mean)
 names(b) <- c('year', 'mean')
-c <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=yak, FUN=sd)
+c <- aggregate((exp(mwt.cpue)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=sd)
 names(c) <- c('year', 'sd')
 
-d <- aggregate((exp(fit)-mwt.adjust)~year, data=yak, FUN=median)
+d <- aggregate((exp(fit)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=median)
 names(d) <- c('year', 'std median')
-e <- aggregate((exp(fit)-mwt.adjust)~year, data=yak, FUN=mean)
+e <- aggregate((exp(fit)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=mean)
 names(e) <- c('year', 'std mean')
-f <- aggregate((exp(fit)-mwt.adjust)~year, data=yak, FUN=sd)
+f <- aggregate((exp(fit)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=sd)
 names(f) <- c('year', 'std sd')
 g <- merge(a,b, by='year')
 g <- merge(g,c, by='year')
@@ -249,12 +251,12 @@ print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
 @
    \begin{table}[H]
    \centering
-   \caption{Yakutat District catch summary for the 2009/10-2014/15 season for raw and standardized data. Data in this table are from the Kodiak Wiki*}
+   \caption{Yakutat District catch summary for the 2009/10-2014/15 season for raw and standardized CPUE. Data in this table are from the Kodiak Wiki*}
    \label{table:yak2}
    \vspace{1.5ex}
 \begin{tabular}{lrrcrrc}
    \hline
- &\multicolumn{3}{c}{Raw cpue} & \multicolumn{3}{c}{Standardized cpue}  \\ 
+ &\multicolumn{3}{c}{Raw CPUE} & \multicolumn{3}{c}{Standardized CPUE}  \\ 
     Year	& median&	mean& sd	& median&	mean&	sd\\
 \hline\\[-1.5ex]
 
@@ -272,7 +274,7 @@ print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
 \label{table:d16t1}
    \begin{tabular}{lcccccc}
    			&  \multicolumn{2}{c}{Retained catch} & Dredge  & Number  &   \\ 
-		Year	&(lb meat)  & (lb round) & hours & hauls  & cpue$^a$    \\ 
+		Year	&(lb meat)  & (lb round) & hours & hauls  & CPUE$^a$    \\ 
 \hline   1995&   33,302	 &  447,469&	1,095&	599&	30\\
          1996&	34,060	  & 422,064&	917&	554&	37\\
          1997/98&	22,890&	265,882&	561&	105&	41\\
@@ -329,12 +331,12 @@ print(xtable(g, align="llcccccc", digits=c(0,0,1,1,1,1,1,1)),only.contents=TRUE,
 @
    \begin{table}[H]
    \centering
-   \caption{District 16 catch summary for the 2009/10-2014/15 season for raw and standardized data. Data in this table are from the Kodiak Wiki*}
+   \caption{District 16 catch summary for the 2009/10-2014/15 season for raw and standardized CPUE. Data in this table are from the Kodiak Wiki*}
    \label{table:d2}
    \vspace{1.5ex}
 \begin{tabular}{lrrcrrc}
    \hline
- &\multicolumn{3}{c}{Raw cpue} & \multicolumn{3}{c}{Standardized cpue}  \\ 
+ &\multicolumn{3}{c}{Raw CPUE} & \multicolumn{3}{c}{Standardized CPUE}  \\ 
     Year   & median&	mean& sd	& median&	mean&	sd\\
 \hline\\[-1.5ex]
 
@@ -365,42 +367,121 @@ yakmap+geom_point(data=subset(yak, year>2011),aes(Set_Lon,Set_Lat,color=Bed,widt
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+facet_grid(Year~.)
 @
 
-
-\subsection{Author's assessemnt}
-I've presented raw and standardized cpue below in a format that differs from previous observer data summaries. In Figure~\ref{fig:yakcpue} the left panes show the density of cpue data. This is the distribution of cpue by haul irrespective of the number of hauls. The right pane is a histogram showing the number of hauls for a bed in a given year, note that the histogram shows stacked bars. The same plots are shown in Figure~\ref{fig:yakfit} for the standardized data. Figure~\ref{fig:yakfit2} shows annual cpue with 95\% confidence limits. This is followed by plots of shell height and shell ages.
+<<old_text,echo=FALSE,eval=FALSE>>=
+\subsection{Author's assessment}
+I've presented raw and standardized CPUE below in a format that differs from previous observer data summaries. In Figure~\ref{fig:yakcpue} the left panes show the density of CPUE data. This is the distribution of CPUE by haul irrespective of the number of hauls. The right pane is a histogram showing the number of hauls for a bed in a given year, note that the histogram shows stacked bars. The same plots are shown in Figure~\ref{fig:yakfit} for the standardized data. Figure~\ref{fig:yakfit2} shows annual CPUE with 95\% confidence limits. This is followed by plots of shell height and shell ages.
 \\
 
 \noindent \textbf{Bed B}\\
-Bed B had a higher mean cpue than in past years, and the amount of effort in the area was higher than in most years. The standardized cpue shows a stronger uptick in 2014 than previous years as well as a binomial distribution in cpue. The last time this bed was fished as heavily was in 2009, after which cpue declined the number of tows was lower. The distribution of shell heights was similar to that observed in 2013, however there was a poor showing in 2014 of smaller shell heights, possibly an indication of poor recruitment. Some of the discarded shells were fairly large, an indication that quality may not be great. Last it appears that the 2014 catch was predominantly of age-14 shells, these first appeared in the fishery in 2009.
+Bed B had a higher mean CPUE than in past years, and the amount of effort in the area was higher than in most years. The standardized CPUE shows a stronger uptick in 2014 than previous years as well as a binomial distribution in CPUE. The last time this bed was fished as heavily was in 2009, after which CPUE declined the number of tows was lower. The distribution of shell heights was similar to that observed in 2013, however there was a poor showing in 2014 of smaller shell heights, possibly an indication of poor recruitment. Some of the discarded shells were fairly large, an indication that quality may not be great. Last it appears that the 2014 catch was predominantly of age-14 shells, these first appeared in the fishery in 2009.
 \\
 
 \noindent \textbf{Bed 1}\\
-Bed 1 had a lower cpue in 2014 than in 2013, though peformed better than the previous years. However, the number of hauls in bed 1 was less than in 2013. The shell heights in bed 1 have a strong bimodal distribution, possibly indicating another cohorrt recruiting to the fishery (this assumes that shell measurements are proportional to the distribution of shells in the population). There is also a rather flat age structure.
+Bed 1 had a lower CPUE in 2014 than in 2013, though performed better than the previous years. However, the number of hauls in bed 1 was less than in 2013. The shell heights in bed 1 have a strong bimodal distribution, possibly indicating another cohort recruiting to the fishery (this assumes that shell measurements are proportional to the distribution of shells in the population). There is also a rather flat age structure.
 \\
 
 \noindent \textbf{Bed 2}\\  
-Bed 2 had a generally high cpue and a relatively high number of hauls compared to years past. Standardized cpue shows a decline in 2014 from 2013, although shell heights indicate that there may be a size group ready to recruit into the fishery. 
+Bed 2 had a generally high CPUE and a relatively high number of hauls compared to years past. Standardized CPUE shows a decline in 2014 from 2013, although shell heights indicate that there may be a size group ready to recruit into the fishery. 
 \\
 
 \noindent \textbf{Bed 3}\\  
-Cpue in bed 3 was widely distributed, possibly due to test hauls in different areas to ascertain the viability of the bed in 2014? Very few hauls were made in bed 3. The shell heights sampled were similar to thos of previous years, thoug teh age structure was rather flat. This is likely due to the low number of samples available, more than a reflexion of what is going on in the population.
+CPUE in bed 3 was widely distributed, possibly due to test hauls in different areas to ascertain the viability of the bed in 2014? Very few hauls were made in bed 3. The shell heights sampled were similar to those of previous years, though the age structure was rather flat. This is likely due to the low number of samples available, more than a reflection of what is going on in the population.
 \\
 
 \noindent \textbf{Bed 4}\\  
-Bed 4 saw quite limited harvest relative to past years with a cpue in line with that observed in 2013. However standardized cpue shows a decline from 2013 and an overall cpue slightly lower than that observed in 2010. The shell heights sampled were comparable to previous years, though discards were sometimes large, ppotentially indicating poor quality of product. The age distribution is also lower than it was for years with greater numbers of hauls.
+Bed 4 saw quite limited harvest relative to past years with a CPUE in line with that observed in 2013. However standardized CPUE shows a decline from 2013 and an overall CPUE slightly lower than that observed in 2010. The shell heights sampled were comparable to previous years, though discards were sometimes large, potentially indicating poor quality of product. The age distribution is also lower than it was for years with greater numbers of hauls.
 
 \noindent \textbf{Bed 5}\\  
-Bed 5 generally has one of the higher cpues, however the number of hauls is low compared to some prior years. Similar to  bed 4 the shell heights were similar to past years, though the discard rate by shell size was high and the age structure is indicates a dominant age cohort(s).
+Bed 5 generally has one of the higher CPUEs, however the number of hauls is low compared to some prior years. Similar to  bed 4 the shell heights were similar to past years, though the discard rate by shell size was high and the age structure is indicates a dominant age cohort(s).
 \\
 
 \noindent \textbf{Bed D16}\\  
-CPUE in bed D16 was lower in 2014 than in 2013, though the number of hauls were similar. This typically has the lowest cpue of any of the beds. Shell height is more broadly dispersed than in previous years, and teh ages are coparable to previous years, aside from 2009, when older ages were prevelent.
+CPUE in bed D16 was lower in 2014 than in 2013, though the number of hauls were similar. This typically has the lowest CPUE of any of the beds. Shell height is more broadly dispersed than in previous years, and the ages are comparable to previous years, aside from 2009, when older ages were prevalent.
+@
 
-<<yakcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D cpue. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
+<<yakraw,echo=FALSE,fig.pos="H", fig.cap="Yakutat District annual raw and standardized CPUE with all years mean, a rolling 5-year mean, and the past five years mean.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=
+#raw data from table 1
+raw <- data.frame(year=1995:2014,cpue=c(51,60,61,58,65,46,43,50,48,41,39,54,48,46,40,45,34,35,51,44))
+raw$mean=mean(raw$cpue)
+raw$five_year=c(rep(NA,4),rollmean(raw$cpue,5,align='right'))
+raw$last_five=c(rep(NA, length(raw$cpue)-5), rep(mean(raw$cpue[(length(raw$cpue)-4):length(raw$cpue)]),5))
+raw.m <- melt(raw, id.vars='year')
+
+# plot raw, mean and 5 year average cpue
+r1 <- ggplot(raw.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Raw CPUE')+xlab('Year')+
+   scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.22),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+#renamed for clarity
+e <- aggregate((exp(fit)-mwt.adjust)~year, data=subset(yak, District=='YAK'), FUN=mean)
+names(e) <- c('year', 'std mean')
+names(e) <- c('year', 'std_cpue')
+e$mean <- mean(e$std_cpue)
+e$five_year=c(rep(NA,4),rollmean(e$std_cpue,5,align='right'))
+e$last_five=c(rep(NA, length(e$std_cpue)-5), rep(mean(e$std_cpue[(length(e$std_cpue)-4):length(e$std_cpue)]),5))
+e.m <- melt(e, id.vars='year')
+r2 <- ggplot(e.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Standardized CPUE')+xlab('Year')+
+         scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('std_cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+         theme(legend.key = element_blank(),legend.position = c(0.15, 0.82),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(r1,r2,ncol=2)
+@
+
+<<d16raw,echo=FALSE,fig.pos="H", fig.cap="District D16 annual raw and standardized CPUE with all years mean, a rolling 5-year mean, and the past five years mean.", warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=
+#raw data from table 1
+raw <- data.frame(year=1995:2014,cpue=c(30,37,41,49,51,65,49,37,60,58,34,44,13,50,24,32,31,36,40,22))
+raw$mean=mean(raw$cpue)
+raw$five_year=c(rep(NA,4),rollmean(raw$cpue,5,align='right'))
+raw$last_five=c(rep(NA, length(raw$cpue)-5), rep(mean(raw$cpue[(length(raw$cpue)-4):length(raw$cpue)]),5))
+raw.m <- melt(raw, id.vars='year')
+
+# plot raw, mean and 5 year average cpue
+r1 <- ggplot(raw.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Raw CPUE')+xlab('Year')+
+   scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.22),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+#renamed for clarity
+e <- aggregate((exp(fit)-mwt.adjust)~year, data=subset(yak, District=='D16'), FUN=mean)
+names(e) <- c('year', 'std mean')
+names(e) <- c('year', 'std_cpue')
+e$mean <- mean(e$std_cpue)
+e$five_year=c(rep(NA,4),rollmean(e$std_cpue,5,align='right'))
+e$last_five=c(rep(NA, length(e$std_cpue)-5), rep(mean(e$std_cpue[(length(e$std_cpue)-4):length(e$std_cpue)]),5))
+e.m <- melt(e, id.vars='year')
+r2 <- ggplot(e.m, aes(year, value, color=variable))+geom_point()+geom_line()+ylab('Standardized CPUE')+xlab('Year')+
+         scale_color_manual(values=c('#31a354','black','#f03b20','#3182bd'),  
+                     breaks=c('std_cpue','mean', 'five_year','last_five'), name='Measure')+
+     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+         theme(legend.key = element_blank(),legend.position = c(0.15, 0.82),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+grid.arrange(r1,r2,ncol=2)
+@
+
+<<yakraw1,echo=FALSE,fig.pos="H", fig.cap="Area D annual raw and standardized CPUE with all years mean (dashed line), by bed.", warning=FALSE ,fig.height=6, cache=TRUE, dev='png', dpi=300, warning=FALSE,message=FALSE>>=      
+hline_data <- aggregate(mwt.cpue~Bed,data=yak, FUN=mean)
+r1 <- ggplot(yak, aes(year, mwt.cpue, color=Bed))+stat_summary(fun.y=mean, geom='line')+
+      facet_grid(Bed~.)+geom_hline(data=hline_data,aes(yintercept=mwt.cpue), lty=4)+ylab('Raw CPUE')+
+        guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+        
+hline_data <- aggregate(fit~Bed,data=yak, FUN=mean)
+r2 <- ggplot(yak, aes(year, fit, color=Bed))+stat_summary(fun.y=mean, geom='line')+
+      facet_grid(Bed~.)+geom_hline(data=hline_data,aes(yintercept=fit), lty=4)+ylab('Standardized CPUE')+
+        guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())        
+grid.arrange(r1,r2,ncol=2)
+@
+
+
+<<yakcpue, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D CPUE. The left pane shows the CPUE distribution for all of the hauls, the right pane shows the number of hauls at a given CPUE.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
 
 #density and number of tows
 m1 <- ggplot(yak, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+
-   facet_grid(Bed~., scales='free_y')+xlab('log(cpue)')+
+   facet_grid(Bed~., scales='free_y')+xlab('log(raw CPUE)')+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values, breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
@@ -408,7 +489,7 @@ m1 <- ggplot(yak, aes(mwt.cpue,fill=Year,color=Year))+geom_density()+
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
 m2 <- ggplot(yak, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+
-   facet_grid(Bed~.)+xlab('log(cpue)')+
+   facet_grid(Bed~.)+xlab('log(raw CPUE)')+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values, breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
@@ -416,11 +497,11 @@ m2 <- ggplot(yak, aes(mwt.cpue,fill=Year,color=Year))+geom_histogram()+
 grid.arrange(m1,m2,ncol=2)
 @
 
-<<yakfit, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D standardized cpue. The left pane shows the cpue distribution for all of the hauls, the right pane shows the number of hauls.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+<<yakfit, fig.pos="H", fig.cap="Density and number of tows by bed and year for Area D standardized CPUE. The left pane shows the CPUE distribution for all of the hauls, the right pane shows the number of hauls at a given standardized CPUE.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
 #plot Yak model fits
 f1 <- ggplot(yak, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~., scales='free_y')+
    scale_fill_manual(values=values,  
-                     breaks=breaks, name='Year')+
+                     breaks=breaks, name='Year')+xlab('Standardized CPUE')+
    scale_color_manual(values=values,  
                       breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
@@ -429,7 +510,7 @@ f1 <- ggplot(yak, aes(fit,fill=Year,color=Year))+geom_density()+facet_grid(Bed~.
 
 f2 <- ggplot(yak, aes(fit,fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
    scale_fill_manual(values=values,  
-                     breaks=breaks, name='Year')+
+                     breaks=breaks, name='Year')+xlab('Standardized CPUE')+
    scale_color_manual(values=values,  
                       breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
@@ -441,10 +522,10 @@ grid.arrange(f1,f2,ncol=2)
 
 #ggplot(yak, aes(Year,fit, fill=interaction(vessel,Bed)))+geom_boxplot()
 #ggplot(yak, aes(vessel,fit, fill=Bed))+geom_boxplot()
-ggplot(yak, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)
+ggplot(yak, aes(Year,fit, fill=vessel))+geom_boxplot(width=.35)+ylab('Standardized CPUE')
 @
 
-<<yakfit2, fig.pos="H", fig.cap="Standardized and raw cpue by year and bed for District D. Standardized cpue have bootstrap estimates 95\\% confidence levels, the raw cpue have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
+<<yakfit2, fig.pos="H", fig.cap="Standardized and raw CPUE by year and bed for District D. Standardized CPUE have bootstrap estimates 95\\% confidence levels, the raw CPUE have normal approximate 95\\% confidence levels.",echo=FALSE, warning=FALSE ,fig.height=4, cache=TRUE, dev='png', dpi=300>>=
 r1 <- ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mean_cl_boot, geom='smooth')+
    scale_fill_manual(values = c('B'='#66250610','1'='#cc4c0210','2'='#fe992910',
          '3'='#e31a1c10','4'='#225ea810','5'='#41b6c410', 'D16'='#54278f10'),
@@ -453,7 +534,7 @@ r1 <- ggplot(yak, aes(year, fit, color=Bed, fill=Bed))+stat_summary(fun.data=mea
          '3'='#e31a1c','4'='#225ea8','5'='#41b6c4', 'D16'='#54278f'),
          breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.2),legend.background = 
-            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('standardized cpue')
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+ylab('Standardized CPUE')
 
 a <- aggregate(mwt.cpue~year+Bed,data=yak, FUN=mean)
 b <- aggregate(mwt.cpue~year+Bed,data=yak, FUN=sd)
@@ -472,14 +553,37 @@ r2 <- ggplot(d, aes(year,mwt.cpue, fill=Bed))+geom_line(aes(color=Bed))+
    scale_color_manual(values = c('B'='#662506','1'='#cc4c02','2'='#fe9929',
          '3'='#e31a1c','4'='#225ea8','5'='#41b6c4', 'D16'='#54278f'),
          breaks= c('B', '1','2','3','4','5', 'D16'), name='bed')+
-      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('cpue')
+      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())+ylab('cpue')+ylab('Raw CPUE')
 grid.arrange(r1,r2,ncol=2)
 
 @
 
-<<yaksh, fig.pos="H", fig.cap="Shell heights by bed and year for Area D. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+<<yaksh, fig.pos="H", fig.cap="Shell heights by bed and year for Yakutat District. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
 #Shell heights
 yak.sh <- merge(yak,sh,by=c('Fishery', 'District','Haul_ID','ADFG'))
+
+#Request from Quinn 6/4/2015 mean and SE of shell height by year
+#a <- aggregate(Shell_Height~year+Rtnd_Disc,data=subset(yak.sh, District=='D16'), FUN=mean)
+##names(a) <- c('year','Rtnd_Disc','mean')
+#b <- aggregate(Shell_Height~year+Rtnd_Disc,data=subset(yak.sh, District=='D16'), FUN=sd)
+#names(b) <- c('year','Rtnd_Disc','sd')
+#c <- aggregate(Shell_Height~year+Rtnd_Disc,data=subset(yak.sh, District=='D16'), FUN=length)
+#names(c) <- c('year','Rtnd_Disc','n')
+#d <- merge(a,b,by=c('year','Rtnd_Disc'))
+#d <- merge(d,c,by=c('year','Rtnd_Disc'))
+#d$se <- d$sd/sqrt(d$n)
+#xtable(d)
+
+#a <- aggregate(Shell_Height~year,data=subset(yak.sh, District=='D16'), FUN=mean)
+##names(a) <- c('year','mean')
+#b <- aggregate(Shell_Height~year,data=subset(yak.sh, District=='D16'), FUN=sd)
+#names(b) <- c('year','sd')
+#c <- aggregate(Shell_Height~year,data=subset(yak.sh, District=='D16'), FUN=length)
+#names(c) <- c('year','n')
+#d <- merge(a,b,by='year')
+#d <- merge(d,c,by='year')
+#d$se <- d$sd/sqrt(d$n)
+#xtable(d)
 
 #SH by year
 s1 <- ggplot(yak.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
@@ -492,6 +596,40 @@ s1 <- ggplot(yak.sh, aes(Shell_Height, fill=Year,color=Year))+geom_density()+fac
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
 s2 <- ggplot(yak.sh, aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,   breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  breaks=breaks, name='Year')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<d16sh, fig.pos="H", fig.cap="Shell heights by bed and year for District 16. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=4.5, cache=TRUE,dev='png', dpi=300>>=
+#Shell heights
+
+#Request from Quinn 6/4/2015 mean and SE of shell height by year
+#a <- aggregate(Shell_Height~year+Rtnd_Disc,data=subset(yak.sh, District=='D16'), FUN=mean)
+##names(a) <- c('year','Rtnd_Disc','mean')
+#b <- aggregate(Shell_Height~year+Rtnd_Disc,data=subset(yak.sh, District=='D16'), FUN=sd)
+#names(b) <- c('year','Rtnd_Disc','sd')
+#c <- aggregate(Shell_Height~year+Rtnd_Disc,data=subset(yak.sh, District=='D16'), FUN=length)
+#names(c) <- c('year','Rtnd_Disc','n')
+#d <- merge(a,b,by=c('year','Rtnd_Disc'))
+#d <- merge(d,c,by=c('year','Rtnd_Disc'))
+#d$se <- d$sd/sqrt(d$n)
+#xtable(d)
+
+
+
+#SH by year
+s1 <- ggplot(subset(yak.sh, District=='D16'), aes(Shell_Height, fill=Year,color=Year))+geom_density()+facet_grid(Bed~.)+
+   scale_fill_manual(values=values,  
+                     breaks=breaks, name='Year')+
+   scale_color_manual(values=values,  
+                      breaks=breaks, name='Year')+
+   guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.075),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+s2 <- ggplot(subset(yak.sh, District=='D16'), aes(Shell_Height, fill=Year,color=Year))+geom_histogram()+facet_grid(Bed~.)+
    scale_fill_manual(values=values,   breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
@@ -513,23 +651,39 @@ grid.arrange(s1,s2,ncol=2)
 
 @
 
-<<yaksh3, fig.pos="H", fig.cap="Retained and discarded shell heights by year for Area D in 2014. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+<<yaksh3, fig.pos="H", fig.cap="Retained and discarded annual shell heights by year for the Yakutat District. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
 
 #SH by year
-s1 <- ggplot(yak.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
+s1 <- ggplot(subset(yak.sh,District=='YAK'), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
    scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
    scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+ 
    theme(legend.key = element_blank(),legend.position = c(0.2, 0.25),legend.background = 
    element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
-s2 <- ggplot(yak.sh, aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Year~.)+
+s2 <- ggplot(subset(yak.sh,District=='YAK'), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Year~.)+
    scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
    scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
    guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(s1,s2,ncol=2)
 @
 
-<<yakage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area D.",echo=FALSE, warning=FALSE ,fig.height=8, cache=TRUE,dev='png', dpi=300>>=
+<<d16sh3, fig.pos="H", fig.cap="Retained and discarded annual shell heights for District 16. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+
+#SH by year
+s1 <- ggplot(subset(yak.sh,District=='D16'), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_density(alpha=.2)+facet_grid(Year~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+ 
+   theme(legend.key = element_blank(),legend.position = c(0.2, 0.25),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+s2 <- ggplot(subset(yak.sh,District=='D16'), aes(Shell_Height, fill=Rtnd_Disc,color=Rtnd_Disc))+geom_histogram(alpha=.2)+facet_grid(Year~.)+
+   scale_color_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')+
+   guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<yakage, fig.pos="H", fig.cap="Shell ages (annuli) by bed and year for Area D. The left pane shows the density of annuli, the right pane is a stacked bar histogram of sample sizes by annuli.",echo=FALSE, warning=FALSE ,fig.height=8, cache=TRUE,dev='png', dpi=300>>=
 #Ages
 yak.age <- merge(yak, ages,by=c('Fishery', 'District','Haul_ID','ADFG', 'set_date', 'year', 'date', 'Year'))
 #age by year
@@ -539,7 +693,7 @@ a1 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_density()+facet_g
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.75, 0.23),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
-a2 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet_grid(Bed~.)+
+a2 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_histogram(binwidth=1)+facet_grid(Bed~.)+
    scale_fill_manual(values=values, breaks=breaks, name='Year')+
    scale_color_manual(values=values,  breaks=breaks, name='Year')+
    guides(colour = guide_legend(override.aes = list(alpha = 1)))+
@@ -547,24 +701,49 @@ a2 <- ggplot(yak.age, aes(annuli, fill=Year, color=Year))+geom_histogram()+facet
 grid.arrange(a1,a2,ncol=2)
 @
 
-<<yakage3, fig.pos="H", fig.cap="Shell ages (annuli) by year for Area D, all beds combined. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+<<yakage3, fig.pos="H", fig.cap="Shell ages (annuli) by year for the Yakutat District, all beds combined. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
 
 #SH by year
-s1 <- ggplot(yak.age, aes(annuli))+geom_density(alpha=.2, fill='4')+facet_grid(Year~.)+
+s1 <- ggplot(subset(yak.age, District=='YAK'), aes(annuli))+geom_density(alpha=.2, fill='4')+facet_grid(Year~.)+
    theme(legend.key = element_blank(),legend.position = c(0.2, 0.25),legend.background = 
    element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
 
-s2 <- ggplot(yak.age, aes(annuli))+geom_histogram(alpha=.2, color='black', fill=4)+facet_grid(Year~.)+
+s2 <- ggplot(subset(yak.age, District=='YAK'), aes(annuli))+geom_histogram(alpha=.2, color='black', fill=4,binwidth=1)+facet_grid(Year~.)+
       guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
 grid.arrange(s1,s2,ncol=2)
 @
 
-<<yakagesh, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for Area D. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
+<<d16age3, fig.pos="H", fig.cap="Shell ages (annuli) by year for District 16. The left pane shows the density of shell heights, the right pane is a stacked bar histogram of sample sizes by shell height.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE,dev='png', dpi=300>>=
+
+#SH by year
+s1 <- ggplot(subset(yak.age, District=='D16'), aes(annuli))+geom_density(alpha=.2, fill='4')+facet_grid(Year~.)+
+   theme(legend.key = element_blank(),legend.position = c(0.2, 0.25),legend.background = 
+   element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))
+
+s2 <- ggplot(subset(yak.age, District=='D16'), aes(annuli))+geom_histogram(alpha=.2, color='black', fill=4,binwidth=1)+facet_grid(Year~.)+
+      guides( fill=FALSE, color=FALSE)+ theme(legend.key = element_blank())
+grid.arrange(s1,s2,ncol=2)
+@
+
+<<yakagesh, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops by bed and year for the Yakutat District. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
 #difference between shell height samples and shell height ages
-as1 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+as1 <- ggplot(subset(yak.age, District=='YAK'), aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
    geom_density(data=yak.sh, aes(Shell_Height), alpha=.2,fill=4)
 
-as2 <- ggplot(yak.age, aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+as2 <- ggplot(subset(yak.age, District=='YAK'), aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=yak.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)+guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
+   theme(legend.key = element_blank(),legend.position = c(0.15, 0.23),legend.background = 
+            element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
+   scale_fill_manual( values=c('D'='#e41a1c','R'='#377eb8'), labels=c('discard', 'retain'),name='')
+grid.arrange(as1,as2,ncol=2)
+@
+
+<<d16agesh, fig.pos="H", fig.cap="Comparison between shells measured for height and shell height of aged scallops for District 16. The left pane shows the density of all shell heights collected (blue) and the density of shell heights from ages shells (gray). The right pane shows the densities of shell heights from retained shells, discarded shell, and aged shells.",echo=FALSE, warning=FALSE ,fig.height=8.5, cache=TRUE, dev='png', dpi=300>>=
+#difference between shell height samples and shell height ages
+as1 <- ggplot(subset(yak.age, District=='D16'), aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
+   geom_density(data=yak.sh, aes(Shell_Height), alpha=.2,fill=4)
+
+as2 <- ggplot(subset(yak.age, District=='D16'), aes(Shell_Height))+geom_density(alpha=.2,fill='black')+facet_grid(Year~.)+
    geom_density(data=yak.sh, aes(Shell_Height, fill=Rtnd_Disc), alpha=.2)+guides(colour = guide_legend(override.aes = list(alpha = 1)))+ 
    theme(legend.key = element_blank(),legend.position = c(0.15, 0.23),legend.background = 
             element_rect(fill = "#ffffffaa", colour = NA),legend.key.height=unit(.6,'line'))+
